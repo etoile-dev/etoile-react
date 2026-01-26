@@ -1,0 +1,58 @@
+{
+  "name": "@etoile-dev/react",
+  "version": "0.1.0",
+  "description": "Official React primitives for Étoile - Headless, composable search components",
+  "keywords": [
+    "etoile",
+    "react",
+    "search",
+    "ai",
+    "semantic-search",
+    "headless",
+    "ui",
+    "components",
+    "primitives",
+    "typescript"
+  ],
+  "author": "Etoile",
+  "license": "MIT",
+  "homepage": "https://etoile.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/etoile-dev/etoile-react.git"
+  },
+  "bugs": {
+    "url": "https://github.com/etoile-dev/etoile-react/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc && cp src/styles.css dist/styles.css",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "dependencies": {
+    "@etoile-dev/client": "^0.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+}
