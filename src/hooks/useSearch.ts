@@ -3,19 +3,30 @@ import { Etoile } from "@etoile-dev/client";
 import type { SearchResultData } from "../types.js";
 
 export type UseSearchOptions = {
-    apiKey?: string;
+    /** Your Étoile API key. Get one at https://etoile.dev */
+    apiKey: string;
+    /** Collections to search in (e.g., ["paintings", "artists"]) */
     collections: string[];
+    /** Maximum number of results to return (default: 10) */
     limit?: number;
+    /** Debounce delay in milliseconds before triggering search (default: 100) */
     debounceMs?: number;
 };
 
 export type UseSearchReturn = {
+    /** Current search query string */
     query: string;
+    /** Update the search query */
     setQuery: (q: string) => void;
+    /** Array of search results */
     results: SearchResultData[];
+    /** Whether a search is currently in progress */
     isLoading: boolean;
+    /** Index of the currently selected result (-1 if none) */
     selectedIndex: number;
+    /** Set the selected result index */
     setSelectedIndex: (i: number) => void;
+    /** Clear the search query and results */
     clear: () => void;
 };
 
@@ -32,6 +43,33 @@ const clampIndex = (index: number, length: number) => {
     return index;
 };
 
+/**
+ * React hook for managing search state with automatic debouncing and API integration.
+ *
+ * Handles search queries, debouncing, API calls, loading states, and result management.
+ * Works seamlessly with Étoile's search API.
+ *
+ * @param options - Search configuration options
+ * @returns Search state and control functions
+ *
+ * @example
+ * ```tsx
+ * const { query, setQuery, results } = useSearch({
+ *   apiKey: "your-api-key",
+ *   collections: ["paintings"],
+ * });
+ * ```
+ *
+ * @example With all options
+ * ```tsx
+ * const { query, setQuery, results, isLoading, clear } = useSearch({
+ *   apiKey: "your-api-key",
+ *   collections: ["paintings", "artists"],
+ *   limit: 20,
+ *   debounceMs: 150,
+ * });
+ * ```
+ */
 export const useSearch = ({
     apiKey,
     collections,
@@ -66,11 +104,6 @@ export const useSearch = ({
         const runSearch = async () => {
             setIsLoading(true);
             try {
-                if (!apiKey) {
-                    setResults([]);
-                    setIsLoading(false);
-                    return;
-                }
                 const client = new Etoile({ apiKey });
                 const response = await client.search({
                     collections,

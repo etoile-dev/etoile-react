@@ -54,18 +54,7 @@ npm i @etoile-dev/react
 import { Search } from "@etoile-dev/react";
 
 export default function App() {
-  return (
-    <Search
-      apiKey={process.env.ETOILE_API_KEY}
-      collections={["paintings", "artists"]}
-      renderResult={(result) => (
-        <div>
-          <h3>{result.title}</h3>
-          <p>Score: {result.score}</p>
-        </div>
-      )}
-    />
-  );
+  return <Search apiKey="your-api-key" collections={["paintings"]} />;
 }
 ```
 
@@ -164,19 +153,9 @@ For complete control, use the `useSearch` hook:
 import { useSearch } from "@etoile-dev/react";
 
 function MyCustomSearch() {
-  const {
-    query,
-    setQuery,
-    results,
-    isLoading,
-    selectedIndex,
-    setSelectedIndex,
-    clear,
-  } = useSearch({
-    apiKey: process.env.ETOILE_API_KEY,
+  const { query, setQuery, results, isLoading } = useSearch({
+    apiKey: "your-api-key",
     collections: ["paintings"],
-    limit: 10,
-    debounceMs: 200,
   });
 
   return (
@@ -184,18 +163,12 @@ function MyCustomSearch() {
       <input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search..."
+        placeholder="Search paintings..."
       />
       {isLoading && <p>Loading...</p>}
       <ul>
-        {results.map((result, i) => (
-          <li
-            key={result.external_id}
-            data-selected={i === selectedIndex}
-            onClick={() => console.log(result)}
-          >
-            {result.title}
-          </li>
+        {results.map((result) => (
+          <li key={result.external_id}>{result.title}</li>
         ))}
       </ul>
     </div>
@@ -211,12 +184,12 @@ function MyCustomSearch() {
 
 Convenience component that composes all primitives.
 
-| Prop           | Type                                          | Required |
-|----------------|-----------------------------------------------|----------|
-| `apiKey`       | `string`                                      |          |
-| `collections`  | `string[]`                                    | ✓        |
-| `limit`        | `number`                                      |          |
-| `renderResult` | `(result: SearchResultData) => React.ReactNode` |          |
+| Prop           | Type                                          | Required | Default |
+|----------------|-----------------------------------------------|----------|---------|
+| `apiKey`       | `string`                                      | ✓        |         |
+| `collections`  | `string[]`                                    | ✓        |         |
+| `limit`        | `number`                                      |          | `10`    |
+| `renderResult` | `(result: SearchResultData) => React.ReactNode` |          |         |
 
 ---
 
@@ -226,10 +199,10 @@ Context provider that manages search state and keyboard navigation.
 
 | Prop          | Type              | Required | Default |
 |---------------|-------------------|----------|---------|
-| `apiKey`      | `string`          |          |         |
+| `apiKey`      | `string`          | ✓        |         |
 | `collections` | `string[]`        | ✓        |         |
 | `limit`       | `number`          |          | `10`    |
-| `debounceMs`  | `number`          |          | `200`   |
+| `debounceMs`  | `number`          |          | `100`   |
 | `autoFocus`   | `boolean`         |          | `false` |
 | `children`    | `React.ReactNode` | ✓        |         |
 
@@ -285,10 +258,10 @@ Headless hook for complete control.
 
 | Field         | Type       | Required | Default |
 |---------------|------------|----------|---------|
-| `apiKey`      | `string`   |          |         |
+| `apiKey`      | `string`   | ✓        |         |
 | `collections` | `string[]` | ✓        |         |
 | `limit`       | `number`   |          | `10`    |
-| `debounceMs`  | `number`   |          | `200`   |
+| `debounceMs`  | `number`   |          | `100`   |
 
 **Returns:**
 
@@ -312,6 +285,7 @@ type SearchResultData = {
   title: string;
   collection: string;
   score: number;
+  content?: string;
   metadata: Record<string, unknown>;
 };
 ```

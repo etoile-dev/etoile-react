@@ -2,10 +2,33 @@ import * as React from "react";
 import { useSearchContext } from "../context/SearchContext.js";
 
 export type SearchInputProps = {
+  /** Placeholder text for the input field */
   placeholder?: string;
+  /** CSS class name for styling the input */
   className?: string;
 };
 
+/**
+ * Search input component with built-in keyboard navigation and accessibility.
+ *
+ * Integrates with SearchRoot context to provide debouncing and keyboard controls
+ * (ArrowUp, ArrowDown, Enter, Escape). Implements ARIA combobox pattern.
+ *
+ * @param props - Component props
+ *
+ * @example
+ * ```tsx
+ * <SearchInput />
+ * ```
+ *
+ * @example With placeholder and styling
+ * ```tsx
+ * <SearchInput
+ *   placeholder="Search paintings..."
+ *   className="px-4 py-2 border rounded-lg"
+ * />
+ * ```
+ */
 export const SearchInput = ({ placeholder, className }: SearchInputProps) => {
   const {
     query,

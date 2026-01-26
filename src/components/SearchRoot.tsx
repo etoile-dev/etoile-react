@@ -3,14 +3,59 @@ import { SearchProvider } from "../context/SearchContext.js";
 import { useSearch } from "../hooks/useSearch.js";
 
 export type SearchRootProps = {
-  apiKey?: string;
+  /** Your Étoile API key. Get one at https://etoile.dev */
+  apiKey: string;
+  /** Collections to search in (e.g., ["paintings", "artists"]) */
   collections: string[];
+  /** Maximum number of results to return (default: 10) */
   limit?: number;
+  /** Debounce delay in milliseconds before triggering search (default: 100) */
   debounceMs?: number;
+  /** Whether the search input should be focused on mount (default: false) */
   autoFocus?: boolean;
+  /** Child components (SearchInput, SearchResults, etc.) */
   children: React.ReactNode;
 };
 
+/**
+ * Root component for Étoile search that provides context to all child components.
+ *
+ * Manages search state, keyboard navigation, result selection, and accessibility.
+ * Wrap your SearchInput and SearchResults components with this root component.
+ *
+ * @param props - Component props
+ *
+ * @example
+ * ```tsx
+ * <SearchRoot apiKey="your-api-key" collections={["paintings"]}>
+ *   <SearchInput />
+ *   <SearchResults>
+ *     {(result) => <SearchResult>{result.title}</SearchResult>}
+ *   </SearchResults>
+ * </SearchRoot>
+ * ```
+ *
+ * @example With all options
+ * ```tsx
+ * <SearchRoot
+ *   apiKey="your-api-key"
+ *   collections={["paintings", "artists"]}
+ *   limit={20}
+ *   debounceMs={150}
+ *   autoFocus
+ * >
+ *   <SearchInput placeholder="Search artworks..." />
+ *   <SearchResults>
+ *     {(result) => (
+ *       <SearchResult>
+ *         <h3>{result.title}</h3>
+ *         <p>{result.metadata?.artist}</p>
+ *       </SearchResult>
+ *     )}
+ *   </SearchResults>
+ * </SearchRoot>
+ * ```
+ */
 export const SearchRoot = ({
   apiKey,
   collections,

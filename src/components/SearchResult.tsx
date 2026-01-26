@@ -3,10 +3,34 @@ import { useSearchContext } from "../context/SearchContext.js";
 import { SearchResultIndexContext } from "./SearchResults.js";
 
 export type SearchResultProps = {
+  /** CSS class name for styling the result item */
   className?: string;
+  /** Content to render inside the result */
   children: React.ReactNode;
 };
 
+/**
+ * Individual search result item with selection state and keyboard navigation.
+ *
+ * Manages selection state and accessibility attributes. Provides `data-selected`
+ * attribute for styling the active result. Must be used inside SearchResults.
+ *
+ * @param props - Component props
+ *
+ * @example
+ * ```tsx
+ * <SearchResult>{result.title}</SearchResult>
+ * ```
+ *
+ * @example With selection styling
+ * ```tsx
+ * <SearchResult className="result-item">
+ *   <h3>{result.title}</h3>
+ * </SearchResult>
+ *
+ * // CSS: .result-item[data-selected="true"] { background: #f0f9ff; }
+ * ```
+ */
 export const SearchResult = ({ className, children }: SearchResultProps) => {
   const { selectedIndex, registerResult, getResultId } = useSearchContext();
   const index = React.useContext(SearchResultIndexContext);
