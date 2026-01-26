@@ -36,7 +36,7 @@ export const useSearch = ({
     apiKey,
     collections,
     limit = 10,
-    debounceMs = 200,
+    debounceMs = 100,
 }: UseSearchOptions): UseSearchReturn => {
     const [query, setQuery] = React.useState("");
     const [debouncedQuery, setDebouncedQuery] = React.useState("");
