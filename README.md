@@ -143,19 +143,39 @@ Add `dark` to the className:
 
 ### CSS Variables
 
-Customize the theme with CSS variables:
+Every value is customizable. Here are the key variables:
 
 ```css
 .etoile-search {
+  /* Colors */
   --etoile-bg: #ffffff;
   --etoile-border: #e4e4e7;
   --etoile-text: #09090b;
   --etoile-text-muted: #71717a;
-  --etoile-ring: #18181b;
   --etoile-selected: #f4f4f5;
+  --etoile-ring: #18181b;
+
+  /* Sizing */
   --etoile-radius: 12px;
+  --etoile-input-height: 44px;
+  --etoile-thumbnail-size: 40px;
+  --etoile-results-max-height: 300px;
+
+  /* Spacing */
+  --etoile-input-padding-x: 16px;
+  --etoile-result-gap: 16px;
+  --etoile-results-offset: 8px;
+
+  /* Typography */
+  --etoile-font-size-input: 15px;
+  --etoile-font-size-title: 14px;
+
+  /* Animation */
+  --etoile-transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 ```
+
+See `styles.css` for the complete list of 40+ variables.
 
 ---
 

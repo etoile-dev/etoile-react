@@ -11,10 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`apiKey` is now required** in all components (`SearchRoot`, `Search`, `useSearch`). Previously it was optional but non-functional without it. Update your code:
   ```tsx
   // Before (0.1.0)
-  <SearchRoot collections={["docs"]} />
+  <SearchRoot collections={["paintings"]} />
   
   // After (0.1.1) - apiKey required
-  <SearchRoot apiKey="your-api-key" collections={["docs"]} />
+  <SearchRoot apiKey="your-api-key" collections={["paintings"]} />
   ```
 
 ### Changed
@@ -32,12 +32,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     <SearchKbd />
   </div>
   ```
-- **Polished default theme** (`styles.css`) inspired by shadcn/ui with:
+- **Polished default theme** (`styles.css`) with:
   - Beautiful input, results, and thumbnail styling
   - Dark mode support (`.dark` class)
   - Smooth animations and transitions
-  - CSS variables for full customization
+  - **Every value is a CSS variable** for full customization (40+ variables)
   - Helper classes: `.etoile-result-content`, `.etoile-result-title`, `.etoile-result-subtitle`
+- `SearchRoot` now automatically wraps children with `.etoile-search` class (no manual wrapper needed)
+- Added `className` prop to `Search` and `SearchRoot` for dark mode and custom styling
+- Added `placeholder` prop to `Search` component
 - Comprehensive JSDoc documentation for all exported components, hooks, and types
 - Exported all TypeScript types: `SearchResultData`, `SearchRootProps`, `SearchInputProps`, `SearchResultThumbnailProps`, etc.
 - Exported `useSearchContext` hook for building custom search components

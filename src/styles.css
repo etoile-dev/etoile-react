@@ -5,10 +5,16 @@
  * Usage:
  *   import "@etoile-dev/react/styles.css";
  *   <div className="etoile-search">...</div>
+ *
+ * All values are customizable via CSS variables.
  */
 
-/* CSS Variables */
+/* ============================================
+   CSS Variables
+   ============================================ */
+
 .etoile-search {
+  /* Colors */
   --etoile-bg: #ffffff;
   --etoile-bg-subtle: #fafafa;
   --etoile-border: #e4e4e7;
@@ -20,17 +26,88 @@
   --etoile-accent-foreground: #fafafa;
   --etoile-ring: #18181b;
   --etoile-selected: #f4f4f5;
+
+  /* Border Radius */
   --etoile-radius: 12px;
   --etoile-radius-sm: 8px;
+  --etoile-radius-kbd: 6px;
+
+  /* Shadows */
   --etoile-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --etoile-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --etoile-transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
 
+  /* Animation */
+  --etoile-transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --etoile-animation-duration: 150ms;
+  --etoile-spinner-duration: 600ms;
+
+  /* Typography */
+  --etoile-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --etoile-font-size-input: 15px;
+  --etoile-font-size-title: 14px;
+  --etoile-font-size-subtitle: 13px;
+  --etoile-font-size-small: 14px;
+  --etoile-font-size-kbd: 11px;
+  --etoile-font-weight-input: 450;
+  --etoile-font-weight-title: 500;
+  --etoile-font-weight-subtitle: 500;
+  --etoile-line-height: 1.3;
+
+  /* Input */
+  --etoile-input-height: 44px;
+  --etoile-input-padding-x: 16px;
+  --etoile-input-border-width: 1px;
+
+  /* Results Dropdown */
+  --etoile-results-offset: 8px;
+  --etoile-results-padding: 6px;
+  --etoile-results-gap: 4px;
+  --etoile-results-max-height: 300px;
+  --etoile-results-z-index: 50;
+
+  /* Result Item */
+  --etoile-result-padding-x: 12px;
+  --etoile-result-padding-y: 10px;
+  --etoile-result-gap: 16px;
+  --etoile-result-content-gap: 1px;
+
+  /* Thumbnail */
+  --etoile-thumbnail-size: 40px;
+
+  /* Icon */
+  --etoile-icon-size: 18px;
+  --etoile-icon-offset: 14px;
+  --etoile-input-padding-with-icon: 42px;
+
+  /* Keyboard Badge */
+  --etoile-kbd-height: 20px;
+  --etoile-kbd-padding-x: 4px;
+  --etoile-kbd-offset: 10px;
+  --etoile-input-padding-with-kbd: 48px;
+
+  /* Spinner */
+  --etoile-spinner-size: 16px;
+  --etoile-spinner-border-width: 2px;
+
+  /* Focus Ring */
+  --etoile-ring-width: 3px;
+  --etoile-ring-opacity: 0.1;
+
+  /* Empty/Loading States */
+  --etoile-empty-padding-x: 16px;
+  --etoile-empty-padding-y: 24px;
+  --etoile-loading-padding: 16px;
+  --etoile-loading-gap: 8px;
+
+  /* Base Styles */
   position: relative;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--etoile-font-family);
 }
 
-/* Dark mode */
+/* ============================================
+   Dark Mode
+   ============================================ */
+
 .etoile-search.dark,
 .dark .etoile-search {
   --etoile-bg: #09090b;
@@ -44,6 +121,7 @@
   --etoile-accent-foreground: #18181b;
   --etoile-ring: #d4d4d8;
   --etoile-selected: #27272a;
+  --etoile-ring-opacity: 0.15;
 }
 
 /* ============================================
@@ -52,14 +130,14 @@
 
 .etoile-search input[role="combobox"] {
   width: 100%;
-  height: 44px;
-  padding: 0 16px;
+  height: var(--etoile-input-height);
+  padding: 0 var(--etoile-input-padding-x);
   background: var(--etoile-bg);
-  border: 1px solid var(--etoile-border);
+  border: var(--etoile-input-border-width) solid var(--etoile-border);
   border-radius: var(--etoile-radius);
   color: var(--etoile-text);
-  font-size: 15px;
-  font-weight: 450;
+  font-size: var(--etoile-font-size-input);
+  font-weight: var(--etoile-font-weight-input);
   outline: none;
   transition: all var(--etoile-transition);
 }
@@ -74,12 +152,12 @@
 
 .etoile-search input[role="combobox"]:focus {
   border-color: var(--etoile-ring);
-  box-shadow: 0 0 0 3px rgb(24 24 27 / 0.1);
+  box-shadow: 0 0 0 var(--etoile-ring-width) rgb(24 24 27 / var(--etoile-ring-opacity));
 }
 
 .dark .etoile-search input[role="combobox"]:focus,
 .etoile-search.dark input[role="combobox"]:focus {
-  box-shadow: 0 0 0 3px rgb(212 212 216 / 0.15);
+  box-shadow: 0 0 0 var(--etoile-ring-width) rgb(212 212 216 / var(--etoile-ring-opacity));
 }
 
 /* ============================================
@@ -90,21 +168,19 @@
   position: absolute;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  top: calc(100% + 8px);
+  gap: var(--etoile-results-gap);
+  top: calc(100% + var(--etoile-results-offset));
   left: 0;
   right: 0;
-  z-index: 50;
-  max-height: 300px;
+  z-index: var(--etoile-results-z-index);
+  max-height: var(--etoile-results-max-height);
   overflow-y: auto;
-  padding: 6px;
+  padding: var(--etoile-results-padding);
   background: var(--etoile-bg);
-  border: 1px solid var(--etoile-border);
+  border: var(--etoile-input-border-width) solid var(--etoile-border);
   border-radius: var(--etoile-radius);
   box-shadow: var(--etoile-shadow-lg);
-
-  /* Smooth entrance animation */
-  animation: etoile-fade-in 150ms ease-out;
+  animation: etoile-fade-in var(--etoile-animation-duration) ease-out;
 
   /* Hide scrollbar */
   scrollbar-width: none;
@@ -133,8 +209,8 @@
 .etoile-search [role="option"] {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 10px 12px;
+  gap: var(--etoile-result-gap);
+  padding: var(--etoile-result-padding-y) var(--etoile-result-padding-x);
   border-radius: var(--etoile-radius-sm);
   cursor: pointer;
   outline: none;
@@ -155,8 +231,8 @@
    ============================================ */
 
 .etoile-search [role="option"] img {
-  width: 40px;
-  height: 40px;
+  width: var(--etoile-thumbnail-size);
+  height: var(--etoile-thumbnail-size);
   object-fit: cover;
   border-radius: var(--etoile-radius-sm);
   background: var(--etoile-bg-subtle);
@@ -170,27 +246,27 @@
 .etoile-search .etoile-result-content {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--etoile-result-content-gap);
   flex: 1;
   min-width: 0;
   text-align: left;
 }
 
 .etoile-search .etoile-result-title {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--etoile-font-size-title);
+  font-weight: var(--etoile-font-weight-title);
   color: var(--etoile-text);
-  line-height: 1.3;
+  line-height: var(--etoile-line-height);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .etoile-search .etoile-result-subtitle {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--etoile-font-size-subtitle);
+  font-weight: var(--etoile-font-weight-subtitle);
   color: var(--etoile-text-muted);
-  line-height: 1.3;
+  line-height: var(--etoile-line-height);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -202,10 +278,10 @@
    ============================================ */
 
 .etoile-search .etoile-empty {
-  padding: 24px 16px;
+  padding: var(--etoile-empty-padding-y) var(--etoile-empty-padding-x);
   text-align: center;
   color: var(--etoile-text-muted);
-  font-size: 14px;
+  font-size: var(--etoile-font-size-small);
 }
 
 /* ============================================
@@ -216,19 +292,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: var(--etoile-loading-padding);
   color: var(--etoile-text-muted);
-  font-size: 14px;
-  gap: 8px;
+  font-size: var(--etoile-font-size-small);
+  gap: var(--etoile-loading-gap);
 }
 
 .etoile-search .etoile-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--etoile-border);
+  width: var(--etoile-spinner-size);
+  height: var(--etoile-spinner-size);
+  border: var(--etoile-spinner-border-width) solid var(--etoile-border);
   border-top-color: var(--etoile-text-muted);
   border-radius: 50%;
-  animation: etoile-spin 600ms linear infinite;
+  animation: etoile-spin var(--etoile-spinner-duration) linear infinite;
 }
 
 @keyframes etoile-spin {
@@ -245,13 +321,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 20px;
-  padding: 0 4px;
+  height: var(--etoile-kbd-height);
+  padding: 0 var(--etoile-kbd-padding-x);
   background: var(--etoile-bg-subtle);
-  border: 1px solid var(--etoile-border);
-  border-radius: 6px;
+  border: var(--etoile-input-border-width) solid var(--etoile-border);
+  border-radius: var(--etoile-radius-kbd);
   color: var(--etoile-text-placeholder);
-  font-size: 11px;
+  font-size: var(--etoile-font-size-kbd);
   font-family: inherit;
   pointer-events: none;
 }
@@ -267,10 +343,10 @@
 .etoile-search .etoile-input-wrapper svg {
   position: absolute;
   top: 50%;
-  left: 14px;
+  left: var(--etoile-icon-offset);
   transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
+  width: var(--etoile-icon-size);
+  height: var(--etoile-icon-size);
   color: var(--etoile-text-muted);
   pointer-events: none;
   transition: color var(--etoile-transition);
@@ -281,14 +357,14 @@
 }
 
 .etoile-search .etoile-input-wrapper input[role="combobox"] {
-  padding-left: 42px;
-  padding-right: 48px;
+  padding-left: var(--etoile-input-padding-with-icon);
+  padding-right: var(--etoile-input-padding-with-kbd);
 }
 
 .etoile-search .etoile-input-wrapper .etoile-kbd {
   position: absolute;
   top: 50%;
-  right: 10px;
+  right: var(--etoile-kbd-offset);
   transform: translateY(-50%);
 }
 
@@ -297,5 +373,5 @@
    ============================================ */
 
 .etoile-search .etoile-input-wrapper:not(:has(svg)) input[role="combobox"] {
-  padding-left: 16px;
+  padding-left: var(--etoile-input-padding-x);
 }
