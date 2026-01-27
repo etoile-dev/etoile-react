@@ -13,6 +13,8 @@ export type SearchRootProps = {
   debounceMs?: number;
   /** Whether the search input should be focused on mount (default: false) */
   autoFocus?: boolean;
+  /** Additional CSS class name (appended to "etoile-search") */
+  className?: string;
   /** Child components (SearchInput, SearchResults, etc.) */
   children: React.ReactNode;
 };
@@ -21,7 +23,7 @@ export type SearchRootProps = {
  * Root component for Étoile search that provides context to all child components.
  *
  * Manages search state, keyboard navigation, result selection, and accessibility.
- * Wrap your SearchInput and SearchResults components with this root component.
+ * Automatically applies `etoile-search` class for styling when using the theme.
  *
  * @param props - Component props
  *
@@ -35,24 +37,10 @@ export type SearchRootProps = {
  * </SearchRoot>
  * ```
  *
- * @example With all options
+ * @example Dark mode
  * ```tsx
- * <SearchRoot
- *   apiKey="your-api-key"
- *   collections={["paintings", "artists"]}
- *   limit={20}
- *   debounceMs={150}
- *   autoFocus
- * >
- *   <SearchInput placeholder="Search artworks..." />
- *   <SearchResults>
- *     {(result) => (
- *       <SearchResult>
- *         <h3>{result.title}</h3>
- *         <p>{result.metadata?.artist}</p>
- *       </SearchResult>
- *     )}
- *   </SearchResults>
+ * <SearchRoot apiKey="your-api-key" collections={["paintings"]} className="dark">
+ *   ...
  * </SearchRoot>
  * ```
  */
@@ -62,6 +50,7 @@ export const SearchRoot = ({
   limit,
   debounceMs,
   autoFocus = false,
+  className,
   children,
 }: SearchRootProps) => {
   const search = useSearch({ apiKey, collections, limit, debounceMs });
@@ -126,5 +115,11 @@ export const SearchRoot = ({
     [search, listboxId, autoFocus]
   );
 
-  return <SearchProvider value={value}>{children}</SearchProvider>;
+  return (
+    <SearchProvider value={value}>
+      <div className={className ? `etoile-search ${className}` : "etoile-search"}>
+        {children}
+      </div>
+    </SearchProvider>
+  );
 };

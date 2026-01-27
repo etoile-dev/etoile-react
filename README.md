@@ -115,31 +115,45 @@ Each result automatically gets `data-selected` and `data-index` attributes:
 
 ---
 
-## Optional theme
+## Default Theme
 
-Import the optional default theme:
+Import the optional theme for a polished, ready-to-use experience:
 
 ```tsx
 import "@etoile-dev/react/styles.css";
+import { Search } from "@etoile-dev/react";
+
+<Search apiKey="your-api-key" collections={["paintings"]} />
 ```
 
-Then use the `.etoile-theme` class:
+That's it! The `etoile-search` class is applied automatically.
+
+### Dark Mode
+
+Add `dark` to the className:
 
 ```tsx
-<div className="etoile-theme">
-  <Search {...props} />
-</div>
+<Search apiKey="your-api-key" collections={["paintings"]} className="dark" />
+
+// Or with SearchRoot
+<SearchRoot apiKey="your-api-key" collections={["paintings"]} className="dark">
+  ...
+</SearchRoot>
 ```
 
-Customize with CSS variables:
+### CSS Variables
+
+Customize the theme with CSS variables:
 
 ```css
-.etoile-theme {
+.etoile-search {
   --etoile-bg: #ffffff;
   --etoile-border: #e4e4e7;
   --etoile-text: #09090b;
-  --etoile-muted: #71717a;
-  --etoile-accent: #2563eb;
+  --etoile-text-muted: #71717a;
+  --etoile-ring: #18181b;
+  --etoile-selected: #f4f4f5;
+  --etoile-radius: 12px;
 }
 ```
 
@@ -247,6 +261,46 @@ Individual result with ARIA option role.
 **Data attributes:**
 - `data-selected="true" | "false"` — Active state
 - `data-index="number"` — Result position
+
+---
+
+### `<SearchResultThumbnail>`
+
+Thumbnail image that auto-detects from `metadata.thumbnailUrl`.
+
+| Prop        | Type     | Required | Default                       |
+|-------------|----------|----------|-------------------------------|
+| `src`       | `string` |          | `metadata.thumbnailUrl`       |
+| `alt`       | `string` |          | `result.title`                |
+| `size`      | `number` |          | `40`                          |
+| `className` | `string` |          |                               |
+
+---
+
+### `<SearchIcon>`
+
+Built-in search magnifying glass SVG icon.
+
+| Prop        | Type     | Required | Default |
+|-------------|----------|----------|---------|
+| `size`      | `number` |          | `18`    |
+| `className` | `string` |          |         |
+
+---
+
+### `<SearchKbd>`
+
+Keyboard shortcut badge.
+
+| Prop        | Type              | Required | Default |
+|-------------|-------------------|----------|---------|
+| `children`  | `React.ReactNode` |          | `⌘K`    |
+| `className` | `string` |          | `etoile-kbd` |
+
+```tsx
+<SearchKbd />           // Shows "⌘K"
+<SearchKbd>/</SearchKbd> // Shows "/"
+```
 
 ---
 

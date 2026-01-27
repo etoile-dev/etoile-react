@@ -10,6 +10,7 @@ export type SearchResultsProps = {
 };
 
 export const SearchResultIndexContext = React.createContext<number | null>(null);
+export const SearchResultDataContext = React.createContext<SearchResultData | null>(null);
 
 /**
  * Container component for rendering search results with keyboard navigation.
@@ -71,7 +72,9 @@ export const SearchResults = ({ className, children }: SearchResultsProps) => {
     >
       {results.map((result, index) => (
         <SearchResultIndexContext.Provider value={index} key={result.external_id}>
-          {children(result)}
+          <SearchResultDataContext.Provider value={result}>
+            {children(result)}
+          </SearchResultDataContext.Provider>
         </SearchResultIndexContext.Provider>
       ))}
     </div>
