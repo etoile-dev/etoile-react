@@ -11,6 +11,8 @@ export type UseSearchOptions = {
     limit?: number;
     /** Debounce delay in milliseconds before triggering search (default: 100) */
     debounceMs?: number;
+    // Internal: custom API base URL for Étoile developers
+    baseUrl?: string;
 };
 
 export type UseSearchReturn = {
@@ -75,12 +77,18 @@ export const useSearch = ({
     collections,
     limit = 10,
     debounceMs = 100,
+    baseUrl,
 }: UseSearchOptions): UseSearchReturn => {
     const [query, setQuery] = React.useState("");
     const [debouncedQuery, setDebouncedQuery] = React.useState("");
     const [results, setResults] = React.useState<SearchResultData[]>([]);
     const [isLoading, setIsLoading] = React.useState(false);
     const [selectedIndex, setSelectedIndexState] = React.useState(-1);
+
+    const client = React.useMemo(
+        () => new Etoile({ apiKey, baseUrl }),
+        [apiKey, baseUrl]
+    );
 
     React.useEffect(() => {
         const handle = setTimeout(() => {
@@ -104,7 +112,6 @@ export const useSearch = ({
         const runSearch = async () => {
             setIsLoading(true);
             try {
-                const client = new Etoile({ apiKey });
                 const response = await client.search({
                     collections,
                     query: debouncedQuery,
@@ -131,7 +138,7 @@ export const useSearch = ({
         return () => {
             isActive = false;
         };
-    }, [apiKey, collections, debouncedQuery, limit]);
+    }, [client, collections, debouncedQuery, limit]);
 
     React.useEffect(() => {
         setSelectedIndexState((current: number) => clampIndex(current, results.length));

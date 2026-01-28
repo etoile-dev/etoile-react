@@ -17,6 +17,8 @@ export type SearchRootProps = {
   className?: string;
   /** Child components (SearchInput, SearchResults, etc.) */
   children: React.ReactNode;
+  // Internal: custom API base URL for Étoile developers
+  baseUrl?: string;
 };
 
 /**
@@ -52,8 +54,9 @@ export const SearchRoot = ({
   autoFocus = false,
   className,
   children,
+  baseUrl,
 }: SearchRootProps) => {
-  const search = useSearch({ apiKey, collections, limit, debounceMs });
+  const search = useSearch({ apiKey, collections, limit, debounceMs, baseUrl });
   const listboxId = React.useId();
   const resultRefs = React.useRef(new Map<number, HTMLElement | null>());
 

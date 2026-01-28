@@ -21,6 +21,8 @@ export type SearchProps = {
     className?: string;
     /** Custom render function for each result (optional) */
     renderResult?: (result: SearchResultData) => React.ReactNode;
+    // Internal: custom API base URL for Étoile developers
+    baseUrl?: string;
 };
 
 const DefaultResult = (result: SearchResultData) => (
@@ -59,9 +61,10 @@ export const Search = ({
     placeholder = "Search...",
     className,
     renderResult,
+    baseUrl,
 }: SearchProps) => {
     return (
-        <SearchRoot apiKey={apiKey} collections={collections} limit={limit} className={className}>
+        <SearchRoot apiKey={apiKey} collections={collections} limit={limit} className={className} baseUrl={baseUrl}>
             <div className="etoile-input-wrapper">
                 <SearchIcon />
                 <SearchInput placeholder={placeholder} />
