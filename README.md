@@ -254,7 +254,7 @@ Controlled input with ARIA combobox role.
 **Keyboard shortcuts:**
 - `ArrowUp` / `ArrowDown` — Navigate results
 - `Enter` — Select active result
-- `Escape` — Clear search
+- `Escape` — Close results (press again to clear)
 
 ---
 
@@ -369,7 +369,7 @@ type SearchResultData = {
 ## Why @etoile-dev/react?
 
 - **Radix / shadcn-style primitives** — Composable and unstyled
-- **Accessibility built-in** — ARIA roles, keyboard navigation, focus management
+- **Accessibility built-in** — ARIA combobox, keyboard navigation, focus management, click-outside dismiss
 - **Behavior, not appearance** — You own the design
 - **TypeScript-first** — Full type safety
 - **Zero dependencies** — Only React and @etoile-dev/client

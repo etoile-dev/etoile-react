@@ -59,6 +59,53 @@ export const SearchRoot = ({
   const search = useSearch({ apiKey, collections, limit, debounceMs, baseUrl });
   const listboxId = React.useId();
   const resultRefs = React.useRef(new Map<number, HTMLElement | null>());
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const [isOpen, setOpen] = React.useState(false);
+
+  // Open the results list whenever results arrive and query is non-empty
+  React.useEffect(() => {
+    if (search.results.length > 0 && search.query.trim() !== "") {
+      setOpen(true);
+    }
+  }, [search.results, search.query]);
+
+  // Close results when query is cleared
+  React.useEffect(() => {
+    if (search.query.trim() === "") {
+      setOpen(false);
+    }
+  }, [search.query]);
+
+  // Click-outside: close results when clicking outside the root element
+  React.useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        rootRef.current &&
+        event.target instanceof Node &&
+        !rootRef.current.contains(event.target)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, []);
+
+  // Focus-out: close results when focus leaves the component entirely
+  const handleFocusOut = (event: React.FocusEvent) => {
+    if (
+      rootRef.current &&
+      event.relatedTarget instanceof Node &&
+      !rootRef.current.contains(event.relatedTarget)
+    ) {
+      setOpen(false);
+    }
+    // relatedTarget is null when focus moves outside the document (e.g. address bar)
+    if (!event.relatedTarget) {
+      setOpen(false);
+    }
+  };
 
   const registerResult = (index: number, node: HTMLElement | null) => {
     resultRefs.current.set(index, node);
@@ -83,11 +130,13 @@ export const SearchRoot = ({
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "ArrowDown") {
       event.preventDefault();
+      setOpen(true);
       search.setSelectedIndex(search.selectedIndex + 1);
       return;
     }
     if (event.key === "ArrowUp") {
       event.preventDefault();
+      setOpen(true);
       search.setSelectedIndex(search.selectedIndex - 1);
       return;
     }
@@ -100,13 +149,20 @@ export const SearchRoot = ({
     }
     if (event.key === "Escape") {
       event.preventDefault();
-      search.clear();
+      // First Escape closes results, second clears the query
+      if (isOpen) {
+        setOpen(false);
+      } else {
+        search.clear();
+      }
     }
   };
 
   const value = React.useMemo(
     () => ({
       ...search,
+      isOpen,
+      setOpen,
       listboxId,
       getResultId,
       registerResult,
@@ -115,12 +171,16 @@ export const SearchRoot = ({
       handleKeyDown,
       autoFocus,
     }),
-    [search, listboxId, autoFocus]
+    [search, isOpen, listboxId, autoFocus]
   );
 
   return (
     <SearchProvider value={value}>
-      <div className={className ? `etoile-search ${className}` : "etoile-search"}>
+      <div
+        ref={rootRef}
+        className={className ? `etoile-search ${className}` : "etoile-search"}
+        onBlur={handleFocusOut}
+      >
         {children}
       </div>
     </SearchProvider>

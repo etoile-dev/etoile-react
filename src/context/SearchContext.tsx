@@ -13,6 +13,10 @@ type SearchContextValue = {
     selectedIndex: number;
     setSelectedIndex: (i: number) => void;
     clear: () => void;
+    /** Whether the results list is currently open/visible */
+    isOpen: boolean;
+    /** Open or close the results list */
+    setOpen: (open: boolean) => void;
     listboxId: string;
     getResultId: (index: number) => string;
     registerResult: (index: number, node: HTMLElement | null) => void;

@@ -40,7 +40,7 @@ export const SearchResultDataContext = React.createContext<SearchResultData | nu
  * ```
  */
 export const SearchResults = ({ className, children }: SearchResultsProps) => {
-  const { query, results, selectedIndex, listboxId, getResultNode } =
+  const { query, results, isOpen, selectedIndex, listboxId, getResultNode } =
     useSearchContext();
   const listboxRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -59,7 +59,7 @@ export const SearchResults = ({ className, children }: SearchResultsProps) => {
     }
   }, [getResultNode, selectedIndex]);
 
-  if (query.trim() === "" || results.length === 0) {
+  if (!isOpen || query.trim() === "" || results.length === 0) {
     return null;
   }
 
