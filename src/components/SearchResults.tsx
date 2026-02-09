@@ -7,7 +7,7 @@ export type SearchResultsProps = {
   className?: string;
   /** Render function that receives each search result */
   children: (result: SearchResultData) => React.ReactNode;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & Omit<React.HTMLAttributes<HTMLDivElement>, "children">;
 
 export const SearchResultIndexContext = React.createContext<number | null>(null);
 export const SearchResultDataContext = React.createContext<SearchResultData | null>(null);
