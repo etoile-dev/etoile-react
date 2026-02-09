@@ -7,7 +7,7 @@ export type SearchResultsProps = {
   className?: string;
   /** Render function that receives each search result */
   children: (result: SearchResultData) => React.ReactNode;
-};
+} & React.HTMLAttributes<HTMLDivElement>;
 
 export const SearchResultIndexContext = React.createContext<number | null>(null);
 export const SearchResultDataContext = React.createContext<SearchResultData | null>(null);
@@ -17,6 +17,7 @@ export const SearchResultDataContext = React.createContext<SearchResultData | nu
  *
  * Accepts a render function that receives each result. Automatically hides
  * when query is empty or no results found. Includes ARIA listbox role.
+ * Accepts standard div props like onScroll and style.
  *
  * @param props - Component props
  *
@@ -39,7 +40,11 @@ export const SearchResultDataContext = React.createContext<SearchResultData | nu
  * </SearchResults>
  * ```
  */
-export const SearchResults = ({ className, children }: SearchResultsProps) => {
+export const SearchResults = ({
+  className,
+  children,
+  ...props
+}: SearchResultsProps) => {
   const { query, results, isOpen, selectedIndex, listboxId, getResultNode } =
     useSearchContext();
   const listboxRef = React.useRef<HTMLDivElement | null>(null);
@@ -65,6 +70,7 @@ export const SearchResults = ({ className, children }: SearchResultsProps) => {
 
   return (
     <div
+      {...props}
       role="listbox"
       id={listboxId}
       className={className}

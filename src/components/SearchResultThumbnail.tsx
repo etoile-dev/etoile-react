@@ -10,13 +10,14 @@ export type SearchResultThumbnailProps = {
   size?: number;
   /** CSS class name for styling */
   className?: string;
-};
+} & React.ImgHTMLAttributes<HTMLImageElement>;
 
 /**
  * Thumbnail image for search results with automatic source detection.
  *
  * Automatically uses `metadata.thumbnailUrl` if available. Returns null
  * if no image source is found. Must be used inside SearchResults.
+ * Accepts standard img props like loading and decoding.
  *
  * @param props - Component props
  *
@@ -42,6 +43,7 @@ export const SearchResultThumbnail = ({
   alt,
   size = 40,
   className,
+  ...props
 }: SearchResultThumbnailProps) => {
   const result = React.useContext(SearchResultDataContext);
 
@@ -54,6 +56,7 @@ export const SearchResultThumbnail = ({
 
   return (
     <img
+      {...props}
       src={imageSrc}
       alt={imageAlt}
       width={size}

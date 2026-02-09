@@ -6,13 +6,14 @@ export type SearchInputProps = {
   placeholder?: string;
   /** CSS class name for styling the input */
   className?: string;
-};
+} & React.InputHTMLAttributes<HTMLInputElement>;
 
 /**
  * Search input component with built-in keyboard navigation and accessibility.
  *
  * Integrates with SearchRoot context to provide debouncing and keyboard controls
  * (ArrowUp, ArrowDown, Enter, Escape). Implements ARIA combobox pattern.
+ * Accepts standard input props like aria-label and autoComplete.
  *
  * @param props - Component props
  *
@@ -29,7 +30,11 @@ export type SearchInputProps = {
  * />
  * ```
  */
-export const SearchInput = ({ placeholder, className }: SearchInputProps) => {
+export const SearchInput = ({
+  placeholder,
+  className,
+  ...props
+}: SearchInputProps) => {
   const {
     query,
     setQuery,
@@ -50,7 +55,8 @@ export const SearchInput = ({ placeholder, className }: SearchInputProps) => {
 
   return (
     <>
-      <input
+    <input
+      {...props}
         type="text"
         placeholder={placeholder}
         className={className}
@@ -61,19 +67,26 @@ export const SearchInput = ({ placeholder, className }: SearchInputProps) => {
         aria-controls={listboxId}
         aria-activedescendant={activeId}
         aria-autocomplete="list"
-        onChange={(event) => {
+      onChange={(event) => {
+        props.onChange?.(event);
           const nextValue = event.target.value;
           setQuery(nextValue);
           if (nextValue.trim() !== "") {
             setSelectedIndex(0);
           }
         }}
-        onFocus={() => {
-          if (query.trim() !== "" && results.length > 0) {
-            setOpen(true);
-          }
-        }}
-        onKeyDown={handleKeyDown}
+      onFocus={(event) => {
+        props.onFocus?.(event);
+        if (!event.defaultPrevented && query.trim() !== "" && results.length > 0) {
+          setOpen(true);
+        }
+      }}
+      onKeyDown={(event) => {
+        props.onKeyDown?.(event);
+        if (!event.defaultPrevented) {
+          handleKeyDown(event);
+        }
+      }}
       />
       {/* Screen reader live region for result count announcements */}
       <div

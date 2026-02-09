@@ -7,13 +7,14 @@ export type SearchResultProps = {
   className?: string;
   /** Content to render inside the result */
   children: React.ReactNode;
-};
+} & React.HTMLAttributes<HTMLDivElement>;
 
 /**
  * Individual search result item with selection state and keyboard navigation.
  *
  * Manages selection state and accessibility attributes. Provides `data-selected`
  * attribute for styling the active result. Must be used inside SearchResults.
+ * Accepts standard div props like onClick for custom behavior.
  *
  * @param props - Component props
  *
@@ -31,7 +32,11 @@ export type SearchResultProps = {
  * // CSS: .result-item[data-selected="true"] { background: #f0f9ff; }
  * ```
  */
-export const SearchResult = ({ className, children }: SearchResultProps) => {
+export const SearchResult = ({
+  className,
+  children,
+  ...props
+}: SearchResultProps) => {
   const { selectedIndex, registerResult, getResultId } = useSearchContext();
   const index = React.useContext(SearchResultIndexContext);
 
@@ -50,6 +55,7 @@ export const SearchResult = ({ className, children }: SearchResultProps) => {
 
   return (
     <div
+      {...props}
       ref={setRef}
       id={id}
       role="option"
