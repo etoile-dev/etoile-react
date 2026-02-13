@@ -15,6 +15,8 @@ export type SearchProps = {
     collections: string[];
     /** Maximum number of results to return (default: 10) */
     limit?: number;
+    /** Debounce delay in milliseconds before triggering search (default: 100) */
+    debounceMs?: number;
     /** Placeholder text for the search input */
     placeholder?: string;
     /** Additional CSS class name (e.g., "dark" for dark mode) */
@@ -58,13 +60,21 @@ export const Search = ({
     apiKey,
     collections,
     limit,
+    debounceMs,
     placeholder = "Search...",
     className,
     renderResult,
     baseUrl,
 }: SearchProps) => {
     return (
-        <SearchRoot apiKey={apiKey} collections={collections} limit={limit} className={className} baseUrl={baseUrl}>
+        <SearchRoot
+            apiKey={apiKey}
+            collections={collections}
+            limit={limit}
+            debounceMs={debounceMs}
+            className={className}
+            baseUrl={baseUrl}
+        >
             <div className="etoile-input-wrapper">
                 <SearchIcon />
                 <SearchInput placeholder={placeholder} />

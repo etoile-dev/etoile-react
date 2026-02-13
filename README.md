@@ -223,6 +223,7 @@ Convenience component that composes all primitives.
 | `apiKey`       | `string`                                      | ✓        |         |
 | `collections`  | `string[]`                                    | ✓        |         |
 | `limit`        | `number`                                      |          | `10`    |
+| `debounceMs`   | `number`                                      |          | `100`   |
 | `renderResult` | `(result: SearchResultData) => React.ReactNode` |          |         |
 
 ---
