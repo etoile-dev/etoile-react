@@ -1,5 +1,5 @@
 /*
- * Étoile React - Default Theme
+ * Etoile React — Default Theme
  * A minimal, elegant theme.
  *
  * Usage:
@@ -14,6 +14,11 @@
    ============================================ */
 
 .etoile-search {
+  /*
+   * Public theme tokens (stable API):
+   * Consumers can safely override these in app-level CSS.
+   */
+
   /* Colors */
   --etoile-bg: #ffffff;
   --etoile-bg-subtle: #fafafa;
@@ -32,9 +37,11 @@
   --etoile-radius-sm: 8px;
   --etoile-radius-kbd: 6px;
 
-  /* Shadows */
-  --etoile-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --etoile-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  /* Shadows (Tailwind shadow-xl inspired) */
+  --etoile-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.04), 0 2px 4px -2px rgb(0 0 0 / 0.03);
+  --etoile-shadow-lg:
+    0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
 
   /* Animation */
   --etoile-transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -42,16 +49,14 @@
   --etoile-spinner-duration: 600ms;
 
   /* Typography */
-  --etoile-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --etoile-font-size-input: 15px;
-  --etoile-font-size-title: 14px;
-  --etoile-font-size-subtitle: 13px;
-  --etoile-font-size-small: 14px;
+  --etoile-font-family:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --etoile-font-size: 15px;
   --etoile-font-size-kbd: 11px;
-  --etoile-font-weight-input: 450;
-  --etoile-font-weight-title: 500;
-  --etoile-font-weight-subtitle: 500;
   --etoile-line-height: 1.3;
+
+  /* Inline searchbar max width */
+  --etoile-searchbar-max-width: 400px;
 
   /* Input */
   --etoile-input-height: 44px;
@@ -62,6 +67,7 @@
   --etoile-results-offset: 8px;
   --etoile-results-padding: 6px;
   --etoile-results-gap: 4px;
+  --etoile-scroll-padding: 8px;
   --etoile-results-max-height: 300px;
   --etoile-results-z-index: 50;
 
@@ -70,6 +76,8 @@
   --etoile-result-padding-y: 10px;
   --etoile-result-gap: 16px;
   --etoile-result-content-gap: 1px;
+  --etoile-group-stack-gap: 6px;
+  --etoile-group-label-padding: 6px 10px 2px;
 
   /* Thumbnail */
   --etoile-thumbnail-size: 40px;
@@ -81,27 +89,72 @@
 
   /* Keyboard Badge */
   --etoile-kbd-height: 20px;
+  --etoile-kbd-min-width: 20px;
   --etoile-kbd-padding-x: 4px;
   --etoile-kbd-offset: 10px;
   --etoile-input-padding-with-kbd: 48px;
 
   /* Spinner */
-  --etoile-spinner-size: 16px;
+  --etoile-spinner-size: 20px;
   --etoile-spinner-border-width: 2px;
 
   /* Focus Ring */
   --etoile-ring-width: 3px;
   --etoile-ring-opacity: 0.1;
 
-  /* Empty/Loading States */
+  /* Empty / Loading states */
   --etoile-empty-padding-x: 16px;
   --etoile-empty-padding-y: 24px;
   --etoile-loading-padding: 16px;
   --etoile-loading-gap: 8px;
 
-  /* Base Styles */
+  /* Modal */
+  --etoile-overlay-bg: rgb(0 0 0 / 0.25);
+  --etoile-content-width: min(560px, calc(100vw - 32px));
+  --etoile-content-max-height: min(70vh, 640px);
+  --etoile-content-padding: 12px;
+  --etoile-content-z-index: 1000;
+  --etoile-content-top: 14vh;
+  --etoile-overlay-duration: 300ms;
+  --etoile-content-duration: 300ms;
+  --etoile-content-height-duration: 220ms;
+  --etoile-content-enter-scale: 0.96;
+  /* Max-height of the results list inside the modal */
+  --etoile-content-list-max-height: 400px;
+  /* Offset used by the list panel inside content */
+  --etoile-content-list-offset: var(--etoile-content-padding);
+  /* Modal border colors */
+  --etoile-content-border-color: rgb(0 0 0 / 0.04);
+  --etoile-content-border-color-dark: rgb(255 255 255 / 0.06);
+  --etoile-content-list-border-color: var(--etoile-border);
+  --etoile-content-list-border-color-dark: rgb(255 255 255 / 0.08);
+  --etoile-overlay-bg-dark: rgb(0 0 0 / 0.4);
+  --etoile-content-bg-dark: #111111;
+  --etoile-modal-input-font-size: 16px;
+  --etoile-modal-input-font-weight: 500;
+  /* Modal input row padding */
+  --etoile-modal-input-padding-x: var(--etoile-content-padding);
+  --etoile-modal-input-padding-y: var(--etoile-modal-input-padding-x);
+
+  /*
+   * Internal aliases (implementation details):
+   * Keep these private so we can refactor styles without changing
+   * the public token surface.
+   */
+  --_etoile-focus-ring-light: rgb(24 24 27 / var(--etoile-ring-opacity));
+  --_etoile-focus-ring-dark: rgb(212 212 216 / var(--etoile-ring-opacity));
+
+  /* Base */
   position: relative;
   font-family: var(--etoile-font-family);
+  font-size: var(--etoile-font-size);
+}
+
+/* Inline searchbar only — cap width; exclude portal elements */
+.etoile-search:not([data-slot="searchbar-content"]):not(
+    [data-slot="searchbar-overlay"]
+  ) {
+  max-width: var(--etoile-searchbar-max-width);
 }
 
 /* ============================================
@@ -125,85 +178,27 @@
 }
 
 /* ============================================
-   Search Input
+   Shared — Keyboard Shortcut Badge
    ============================================ */
 
-.etoile-search input[role="combobox"] {
-  width: 100%;
-  height: var(--etoile-input-height);
-  padding: 0 var(--etoile-input-padding-x);
-  background: var(--etoile-bg);
+.etoile-search [data-slot="searchbar-kbd"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--etoile-kbd-min-width);
+  height: var(--etoile-kbd-height);
+  padding: 0 var(--etoile-kbd-padding-x);
+  background: var(--etoile-bg-subtle);
   border: var(--etoile-input-border-width) solid var(--etoile-border);
-  border-radius: var(--etoile-radius);
-  color: var(--etoile-text);
-  font-size: var(--etoile-font-size-input);
-  font-weight: var(--etoile-font-weight-input);
-  outline: none;
-  transition: all var(--etoile-transition);
-}
-
-.etoile-search input[role="combobox"]::placeholder {
+  border-radius: var(--etoile-radius-kbd);
   color: var(--etoile-text-placeholder);
-}
-
-.etoile-search input[role="combobox"]:hover {
-  border-color: var(--etoile-border-hover);
-}
-
-.etoile-search input[role="combobox"]:focus {
-  border-color: var(--etoile-ring);
-  box-shadow: 0 0 0 var(--etoile-ring-width) rgb(24 24 27 / var(--etoile-ring-opacity));
-}
-
-.dark .etoile-search input[role="combobox"]:focus,
-.etoile-search.dark input[role="combobox"]:focus {
-  box-shadow: 0 0 0 var(--etoile-ring-width) rgb(212 212 216 / var(--etoile-ring-opacity));
+  font-size: var(--etoile-font-size-kbd);
+  font-family: inherit;
+  pointer-events: none;
 }
 
 /* ============================================
-   Search Results Container
-   ============================================ */
-
-.etoile-search [role="listbox"] {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  gap: var(--etoile-results-gap);
-  top: calc(100% + var(--etoile-results-offset));
-  left: 0;
-  right: 0;
-  z-index: var(--etoile-results-z-index);
-  max-height: var(--etoile-results-max-height);
-  overflow-y: auto;
-  padding: var(--etoile-results-padding);
-  background: var(--etoile-bg);
-  border: var(--etoile-input-border-width) solid var(--etoile-border);
-  border-radius: var(--etoile-radius);
-  box-shadow: var(--etoile-shadow-lg);
-  animation: etoile-fade-in var(--etoile-animation-duration) ease-out;
-
-  /* Hide scrollbar */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.etoile-search [role="listbox"]::-webkit-scrollbar {
-  display: none;
-}
-
-@keyframes etoile-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* ============================================
-   Search Result Item
+   Shared — Search Result Item
    ============================================ */
 
 .etoile-search [role="option"] {
@@ -211,6 +206,7 @@
   align-items: center;
   gap: var(--etoile-result-gap);
   padding: var(--etoile-result-padding-y) var(--etoile-result-padding-x);
+  font-size: var(--etoile-font-size);
   border-radius: var(--etoile-radius-sm);
   cursor: pointer;
   outline: none;
@@ -227,7 +223,30 @@
 }
 
 /* ============================================
-   Search Result Thumbnail
+   Shared — Group
+   ============================================ */
+
+.etoile-search [data-slot="searchbar-group"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--etoile-results-gap);
+}
+
+.etoile-search [data-slot="searchbar-group"] + [data-slot="searchbar-group"] {
+  margin-top: var(--etoile-group-stack-gap);
+}
+
+.etoile-search [data-slot="searchbar-group-label"] {
+  padding: var(--etoile-group-label-padding);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--etoile-text-muted);
+  letter-spacing: 0.01em;
+  text-transform: capitalize;
+}
+
+/* ============================================
+   Shared — Thumbnail
    ============================================ */
 
 .etoile-search [role="option"] img {
@@ -240,10 +259,10 @@
 }
 
 /* ============================================
-   Search Result Content
+   Shared — Result Content
    ============================================ */
 
-.etoile-search .etoile-result-content {
+.etoile-search [data-slot="searchbar-result-content"] {
   display: flex;
   flex-direction: column;
   gap: var(--etoile-result-content-gap);
@@ -252,9 +271,7 @@
   text-align: left;
 }
 
-.etoile-search .etoile-result-title {
-  font-size: var(--etoile-font-size-title);
-  font-weight: var(--etoile-font-weight-title);
+.etoile-search [data-slot="searchbar-result-title"] {
   color: var(--etoile-text);
   line-height: var(--etoile-line-height);
   overflow: hidden;
@@ -262,9 +279,7 @@
   white-space: nowrap;
 }
 
-.etoile-search .etoile-result-subtitle {
-  font-size: var(--etoile-font-size-subtitle);
-  font-weight: var(--etoile-font-weight-subtitle);
+.etoile-search [data-slot="searchbar-result-subtitle"] {
   color: var(--etoile-text-muted);
   line-height: var(--etoile-line-height);
   overflow: hidden;
@@ -274,37 +289,38 @@
 }
 
 /* ============================================
-   Empty State
+   Shared — Empty State
    ============================================ */
 
-.etoile-search .etoile-empty {
+.etoile-search [data-slot="searchbar-empty"] {
   padding: var(--etoile-empty-padding-y) var(--etoile-empty-padding-x);
   text-align: center;
   color: var(--etoile-text-muted);
-  font-size: var(--etoile-font-size-small);
+}
+
+.etoile-search [data-slot="searchbar-empty-query"] {
+  color: var(--etoile-text);
 }
 
 /* ============================================
-   Loading State
+   Shared — Loading State
    ============================================ */
 
-.etoile-search .etoile-loading {
+.etoile-search [data-slot="searchbar-loading"] {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--etoile-loading-padding);
-  color: var(--etoile-text-muted);
-  font-size: var(--etoile-font-size-small);
+  color: var(--etoile-text-placeholder);
   gap: var(--etoile-loading-gap);
 }
 
-.etoile-search .etoile-spinner {
+.etoile-search [data-slot="searchbar-spinner"] {
   width: var(--etoile-spinner-size);
   height: var(--etoile-spinner-size);
-  border: var(--etoile-spinner-border-width) solid var(--etoile-border);
-  border-top-color: var(--etoile-text-muted);
-  border-radius: 50%;
+  color: var(--etoile-text-placeholder);
   animation: etoile-spin var(--etoile-spinner-duration) linear infinite;
+  flex-shrink: 0;
 }
 
 @keyframes etoile-spin {
@@ -314,33 +330,25 @@
 }
 
 /* ============================================
-   Keyboard Shortcut Badge
+   Shared — Error State
    ============================================ */
 
-.etoile-search .etoile-kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: var(--etoile-kbd-height);
-  padding: 0 var(--etoile-kbd-padding-x);
-  background: var(--etoile-bg-subtle);
-  border: var(--etoile-input-border-width) solid var(--etoile-border);
-  border-radius: var(--etoile-radius-kbd);
-  color: var(--etoile-text-placeholder);
-  font-size: var(--etoile-font-size-kbd);
-  font-family: inherit;
-  pointer-events: none;
+.etoile-search [data-slot="searchbar-error"] {
+  padding: var(--etoile-empty-padding-y) var(--etoile-empty-padding-x);
+  text-align: center;
+  color: var(--etoile-text-muted);
 }
 
 /* ============================================
-   Utility: Input with Icon
+   Inline Searchbar — Input Row
    ============================================ */
 
-.etoile-search .etoile-input-wrapper {
+.etoile-search [data-slot="searchbar-input-row"] {
   position: relative;
 }
 
-.etoile-search .etoile-input-wrapper svg {
+/* Icon — absolutely positioned inside the row */
+.etoile-search [data-slot="searchbar-input-row"] svg {
   position: absolute;
   top: 50%;
   left: var(--etoile-icon-offset);
@@ -352,26 +360,365 @@
   transition: color var(--etoile-transition);
 }
 
-.etoile-search .etoile-input-wrapper:focus-within svg {
+.etoile-search [data-slot="searchbar-input-row"]:focus-within svg {
   color: var(--etoile-text);
 }
 
-.etoile-search .etoile-input-wrapper input[role="combobox"] {
-  padding-left: var(--etoile-input-padding-with-icon);
-  padding-right: var(--etoile-input-padding-with-kbd);
-}
-
-.etoile-search .etoile-input-wrapper .etoile-kbd {
+/* Kbd — absolutely positioned inside the row */
+.etoile-search [data-slot="searchbar-input-row"] [data-slot="searchbar-kbd"] {
   position: absolute;
   top: 50%;
   right: var(--etoile-kbd-offset);
   transform: translateY(-50%);
 }
 
+/* Input — base styles */
+.etoile-search [data-slot="searchbar-input-row"] input[role="combobox"] {
+  width: 100%;
+  height: var(--etoile-input-height);
+  padding: 0 var(--etoile-input-padding-x);
+  background: var(--etoile-bg);
+  border: var(--etoile-input-border-width) solid var(--etoile-border);
+  border-radius: var(--etoile-radius);
+  color: var(--etoile-text);
+  font-size: var(--etoile-font-size);
+  outline: none;
+  transition: all var(--etoile-transition);
+}
+
+.etoile-search
+  [data-slot="searchbar-input-row"]
+  input[role="combobox"]::placeholder {
+  color: var(--etoile-text-placeholder);
+}
+
+.etoile-search [data-slot="searchbar-input-row"] input[role="combobox"]:hover {
+  border-color: var(--etoile-border-hover);
+}
+
+.etoile-search [data-slot="searchbar-input-row"] input[role="combobox"]:focus {
+  border-color: var(--etoile-ring);
+  box-shadow: 0 0 0 var(--etoile-ring-width) var(--_etoile-focus-ring-light);
+}
+
+.dark
+  .etoile-search
+  [data-slot="searchbar-input-row"]
+  input[role="combobox"]:focus,
+.etoile-search.dark
+  [data-slot="searchbar-input-row"]
+  input[role="combobox"]:focus {
+  box-shadow: 0 0 0 var(--etoile-ring-width) var(--_etoile-focus-ring-dark);
+}
+
+/* Increase left padding when icon is present */
+.etoile-search
+  [data-slot="searchbar-input-row"]:has(svg)
+  input[role="combobox"] {
+  padding-left: var(--etoile-input-padding-with-icon);
+}
+
+/* Increase right padding when kbd is present */
+.etoile-search
+  [data-slot="searchbar-input-row"]:has([data-slot="searchbar-kbd"])
+  input[role="combobox"] {
+  padding-right: var(--etoile-input-padding-with-kbd);
+}
+
 /* ============================================
-   Utility: Input without Icon (just kbd)
+   Inline Searchbar — Results Dropdown
    ============================================ */
 
-.etoile-search .etoile-input-wrapper:not(:has(svg)) input[role="combobox"] {
-  padding-left: var(--etoile-input-padding-x);
+.etoile-search [role="listbox"] {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: var(--etoile-results-gap);
+  top: calc(100% + var(--etoile-results-offset));
+  scroll-padding-block-start: var(--etoile-scroll-padding);
+  scroll-padding-block-end: var(--etoile-scroll-padding);
+  left: 0;
+  right: 0;
+  z-index: var(--etoile-results-z-index);
+  max-height: var(--etoile-results-max-height);
+  overflow-y: auto;
+  padding: var(--etoile-results-padding);
+  background: var(--etoile-bg);
+  border: var(--etoile-input-border-width) solid var(--etoile-border);
+  border-radius: var(--etoile-radius);
+  box-shadow: var(--etoile-shadow-lg);
+  animation: etoile-list-in var(--etoile-animation-duration)
+    cubic-bezier(0.16, 1, 0.3, 1);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.etoile-search [role="listbox"]::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes etoile-list-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================
+   Modal — Overlay + Content panel
+   ============================================ */
+
+.etoile-search[data-slot="searchbar-overlay"] {
+  position: fixed;
+  inset: 0;
+  background: var(--etoile-overlay-bg);
+  z-index: calc(var(--etoile-content-z-index) - 1);
+}
+
+.etoile-search[data-slot="searchbar-overlay"][data-state="open"] {
+  animation: etoile-overlay-in var(--etoile-overlay-duration)
+    cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.etoile-search[data-slot="searchbar-overlay"][data-state="closed"] {
+  animation: etoile-overlay-out var(--etoile-overlay-duration)
+    cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+.dark .etoile-search[data-slot="searchbar-overlay"][data-state="open"],
+.etoile-search.dark[data-slot="searchbar-overlay"][data-state="open"] {
+  background: var(--etoile-overlay-bg-dark);
+}
+
+.etoile-search[data-slot="searchbar-content"] {
+  position: fixed;
+  top: var(--etoile-content-top);
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--etoile-content-width);
+  max-height: var(--etoile-content-max-height);
+  padding: var(--etoile-content-padding);
+  background: var(--etoile-bg);
+  border: 1px solid var(--etoile-content-border-color);
+  border-radius: var(--etoile-radius);
+  box-shadow: var(--etoile-shadow-lg);
+  z-index: var(--etoile-content-z-index);
+  overflow: hidden;
+  /* Height is set by JS (ResizeObserver) and animated via transition */
+  transition: height var(--etoile-content-height-duration)
+    cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Inner wrapper carries the flex layout so ResizeObserver can measure natural content height */
+.etoile-search[data-slot="searchbar-content"]
+  [data-slot="searchbar-content-inner"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--etoile-content-padding);
+}
+
+.etoile-search[data-slot="searchbar-content"][data-state="open"] {
+  animation: etoile-content-in var(--etoile-content-duration)
+    cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.etoile-search[data-slot="searchbar-content"][data-state="closed"] {
+  animation: etoile-content-out var(--etoile-content-duration)
+    cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+.dark .etoile-search[data-slot="searchbar-content"],
+.etoile-search.dark[data-slot="searchbar-content"] {
+  background: var(--etoile-content-bg-dark);
+  border-color: var(--etoile-content-border-color-dark);
+}
+
+/* Listbox becomes a static child inside the modal panel.
+   max-height caps the list so content above it remains visible. */
+.etoile-search[data-slot="searchbar-content"][data-state="open"]
+  [role="listbox"] {
+  position: static;
+  top: auto;
+  left: auto;
+  right: auto;
+  max-height: var(--etoile-content-list-max-height);
+  min-height: 0;
+  overflow-y: auto;
+  border: 0;
+  border-top: 1px solid var(--etoile-content-list-border-color);
+  border-radius: 0;
+  box-shadow: none;
+  margin-top: calc(
+    -1 * var(--etoile-content-padding) + var(--etoile-content-list-offset)
+  );
+  margin-left: calc(-1 * var(--etoile-content-padding));
+  margin-right: calc(-1 * var(--etoile-content-padding));
+  margin-bottom: calc(-1 * var(--etoile-content-padding));
+  padding: var(--etoile-content-padding);
+  gap: var(--etoile-results-gap);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-padding-block-start: var(--etoile-scroll-padding);
+  scroll-padding-block-end: var(--etoile-scroll-padding);
+  animation: etoile-list-in var(--etoile-animation-duration)
+    cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark
+  .etoile-search[data-slot="searchbar-content"][data-state="open"]
+  [role="listbox"],
+.etoile-search.dark[data-slot="searchbar-content"][data-state="open"]
+  [role="listbox"] {
+  border-top-color: var(--etoile-content-list-border-color-dark);
+}
+
+/* Extra padding for empty/loading states inside the modal */
+.etoile-search[data-slot="searchbar-content"] [data-slot="searchbar-empty"],
+.etoile-search[data-slot="searchbar-content"] [data-slot="searchbar-loading"],
+.etoile-search[data-slot="searchbar-content"] [data-state="empty"],
+.etoile-search[data-slot="searchbar-content"] [data-state="loading"] {
+  padding: var(--etoile-content-padding);
+}
+
+/* ============================================
+   Modal — Input Row (Searchbar.ModalInput)
+   ============================================ */
+
+.etoile-search[data-slot="searchbar-content"]
+  [data-slot="searchbar-modal-input"] {
+  display: flex;
+  align-items: center;
+  gap: var(--etoile-content-padding);
+  min-height: var(--etoile-input-height);
+  padding-inline: var(--etoile-modal-input-padding-x);
+  padding-block: var(
+    --etoile-modal-input-padding-y,
+    var(--etoile-modal-input-padding-x)
+  );
+}
+
+.etoile-search[data-slot="searchbar-content"]
+  [data-slot="searchbar-modal-input"]
+  svg {
+  flex-shrink: 0;
+  color: var(--etoile-text-muted);
+  transition: color var(--etoile-transition);
+}
+
+.etoile-search[data-slot="searchbar-content"]
+  [data-slot="searchbar-modal-input"]:focus-within
+  svg {
+  color: var(--etoile-text);
+}
+
+.etoile-search[data-slot="searchbar-content"]
+  [data-slot="searchbar-modal-input"]
+  [data-slot="searchbar-kbd"] {
+  flex-shrink: 0;
+}
+
+/* Modal input: borderless, transparent, fills available width */
+.etoile-search[data-slot="searchbar-content"]
+  [data-slot="searchbar-modal-input"]
+  input[role="combobox"] {
+  flex: 1;
+  min-width: 0;
+  height: auto;
+  padding: 0;
+  font-size: var(--etoile-modal-input-font-size);
+  font-weight: var(--etoile-modal-input-font-weight);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  outline: none;
+  color: inherit;
+}
+
+.etoile-search[data-slot="searchbar-content"]
+  [data-slot="searchbar-modal-input"]
+  input[role="combobox"]::placeholder {
+  color: var(--etoile-text-placeholder);
+}
+
+.etoile-search[data-slot="searchbar-content"]
+  [data-slot="searchbar-modal-input"]
+  input[role="combobox"]:hover,
+.etoile-search[data-slot="searchbar-content"]
+  [data-slot="searchbar-modal-input"]
+  input[role="combobox"]:focus {
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes etoile-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes etoile-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes etoile-content-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(var(--etoile-content-enter-scale));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes etoile-content-out {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) scale(var(--etoile-content-enter-scale));
+  }
+}
+
+@media (max-width: 640px) {
+  /* Mobile command palette: comfortable top offset + 24px side gutters */
+  .etoile-search {
+    --etoile-content-top: 24px;
+    --etoile-content-width: calc(100vw - 48px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .etoile-search [role="listbox"],
+  .etoile-search[data-slot="searchbar-overlay"][data-state="open"],
+  .etoile-search[data-slot="searchbar-overlay"][data-state="closed"],
+  .etoile-search[data-slot="searchbar-content"],
+  .etoile-search[data-slot="searchbar-content"][data-state="open"],
+  .etoile-search[data-slot="searchbar-content"][data-state="closed"],
+  .etoile-search[data-slot="searchbar-content"][data-state="open"]
+    [role="listbox"] {
+    animation: none !important;
+    transition: none !important;
+  }
 }

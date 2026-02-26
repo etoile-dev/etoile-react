@@ -1,29 +1,25 @@
 import * as React from "react";
 
-export type SearchIconProps = {
+export type SearchbarIconProps = {
   /** Width and height in pixels (default: 18) */
   size?: number;
-  /** CSS class name for styling */
   className?: string;
-};
+} & React.SVGAttributes<SVGElement>;
 
 /**
  * Search magnifying glass icon.
  *
- * A minimal SVG icon that works perfectly with the default theme.
- *
- * @param props - Component props
- *
  * @example
  * ```tsx
- * <div className="etoile-input-wrapper">
- *   <SearchIcon />
- *   <SearchInput placeholder="Search..." />
+ * <div data-slot="searchbar-input-row">
+ *   <Searchbar.Icon />
+ *   <Searchbar.Input />
  * </div>
  * ```
  */
-export const SearchIcon = ({ size = 18, className }: SearchIconProps) => (
+export const Icon = ({ size = 18, className, ...props }: SearchbarIconProps) => (
   <svg
+    {...props}
     xmlns="http://www.w3.org/2000/svg"
     width={size}
     height={size}
@@ -40,3 +36,5 @@ export const SearchIcon = ({ size = 18, className }: SearchIconProps) => (
     <circle cx="11" cy="11" r="8" />
   </svg>
 );
+
+Icon.displayName = "Searchbar.Icon";

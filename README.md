@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://etoile.dev">
-    <img src="https://etoile.dev/assets/logo-black.svg" alt="Étoile" height="32" />
+    <img src="https://etoile.dev/assets/logo-black.svg" alt="Etoile" height="32" />
   </a>
 </p>
 
@@ -11,7 +11,7 @@
 <h1 align="center">@etoile-dev/react</h1>
 
 <p align="center">
-  <strong>Headless React primitives for search.</strong>
+  <strong>Headless React primitives for search — with Etoile-powered components and hooks.</strong>
   <br />
   Composable. Accessible. Zero styling.
 </p>
@@ -24,19 +24,23 @@
 
 ## About
 
-**@etoile-dev/react** provides headless, composable React components for search powered by [Étoile](https://etoile.dev).
+**@etoile-dev/react** is the React SDK for **Etoile**, and also a set of unstyled primitives you can wire to any data source.
 
-Built on top of [@etoile-dev/client](https://www.npmjs.com/package/@etoile-dev/client), these primitives give you full control over styling while handling state, keyboard navigation, and accessibility.
+You get three layers:
+
+- **Ready-to-use Etoile components** — `<Searchbar />` and `<SearchModal />`
+- **Etoile data hooks** — `useEtoileSearch` (and `useSearch` alias)
+- **Headless primitives** — `Searchbar.Root`, `Searchbar.Input`, `Searchbar.List`, `Searchbar.Item`, …
 
 ---
 
 ## Philosophy
 
 - **Headless-first** — You control the appearance
-- **Composable** — Build your own search UX
-- **Accessible** — Full ARIA support and keyboard navigation
-- **No magic** — Behavior is predictable and documented
-- **No opinions** — Bring your own styles (or use our optional theme)
+- **Composable** — Build any search UX from small primitives
+- **Accessible** — Full ARIA combobox / listbox pattern, keyboard navigation
+- **No magic** — Predictable behavior, clear contracts
+- **Zero style opinions** — Bring your own CSS (or use our optional theme)
 
 ---
 
@@ -50,330 +54,461 @@ npm i @etoile-dev/react
 
 ## Quickstart
 
+The simplest possible usage — just an API key and a collection:
+
 ```tsx
-import { Search } from "@etoile-dev/react";
+import "@etoile-dev/react/styles.css";
+import { Searchbar } from "@etoile-dev/react";
 
 export default function App() {
-  return <Search apiKey="your-api-key" collections={["paintings"]} />;
+  return <Searchbar apiKey="your-api-key" collections={["paintings"]} />;
 }
+```
+
+Search multiple collections and handle selection:
+
+```tsx
+<Searchbar
+  apiKey={process.env.ETOILE_API_KEY!}
+  collections={["paintings", "artists"]}
+  limit={10}
+  onSelect={(id) => router.push(`/work/${id}`)}
+/>
 ```
 
 ---
 
-## Composable Primitives
+## Headless primitives
 
-For full control, use the headless primitives:
+Use `Searchbar.Root` and friends for full control with no Etoile dependency:
 
 ```tsx
-import {
-  SearchRoot,
-  SearchInput,
-  SearchResults,
-  SearchResult,
-} from "@etoile-dev/react";
+import { Searchbar } from "@etoile-dev/react";
 
-export default function CustomSearch() {
+export default function LocalSearch() {
   return (
-    <SearchRoot
-      apiKey={process.env.ETOILE_API_KEY}
-      collections={["paintings"]}
-      limit={20}
-    >
-      <SearchInput placeholder="Search paintings..." className="search-input" />
-      
-      <SearchResults className="results-list">
-        {(result) => (
-          <SearchResult className="result-item">
-            <h3>{result.title}</h3>
-            <p>{result.metadata.artist}</p>
-            <small>Score: {result.score.toFixed(2)}</small>
-          </SearchResult>
-        )}
-      </SearchResults>
-    </SearchRoot>
+    <Searchbar.Root onSelect={(id) => router.push(`/paintings/${id}`)}>
+      <Searchbar.Input placeholder="Search paintings…" />
+      <Searchbar.List>
+        {paintings.map((p) => (
+          <Searchbar.Item key={p.id} value={p.id} label={p.title}>
+            {p.title}
+          </Searchbar.Item>
+        ))}
+        <Searchbar.Empty>No results.</Searchbar.Empty>
+        <Searchbar.Loading />
+      </Searchbar.List>
+    </Searchbar.Root>
   );
 }
 ```
 
+Primitives are unstyled by default. To opt into the built-in theme while using
+primitives, add `className="etoile-search"` on `Searchbar.Root` and import
+`@etoile-dev/react/styles.css`.
+
 ---
 
-## Styling with data attributes
+## Custom rendering
 
-Each result automatically gets `data-selected` and `data-index` attributes:
-
-```css
-.result-item {
-  padding: 1rem;
-  cursor: pointer;
-}
-
-.result-item[data-selected="true"] {
-  background: #f0f9ff;
-  border-left: 3px solid #0ea5e9;
-}
+```tsx
+<Searchbar
+  apiKey={process.env.ETOILE_API_KEY!}
+  collections={["paintings", "artists"]}
+  onSelect={(id) => router.push(`/work/${id}`)}
+  renderItem={(result) => (
+    <Searchbar.Item value={result.external_id} label={result.title}>
+      <Searchbar.Thumbnail />
+      <div>
+        <strong>{result.title}</strong>
+        <span>{String(result.metadata?.artist ?? "")}</span>
+      </div>
+    </Searchbar.Item>
+  )}
+/>
 ```
 
 ---
 
-## Default Theme
+## Command palette / modal mode
 
-Import the optional theme for a polished, ready-to-use experience:
+Use the `<SearchModal />` convenience component for an Etoile-powered palette:
 
 ```tsx
 import "@etoile-dev/react/styles.css";
-import { Search } from "@etoile-dev/react";
+import { SearchModal } from "@etoile-dev/react";
 
-<Search apiKey="your-api-key" collections={["paintings"]} />
+<SearchModal apiKey="your-api-key" collections={["paintings"]} />;
 ```
 
-That's it! The `etoile-search` class is applied automatically.
-
-### Dark Mode
-
-Add `dark` to the className:
+Or compose the primitives yourself for full control:
 
 ```tsx
-<Search apiKey="your-api-key" collections={["paintings"]} className="dark" />
+<Searchbar.Root className="etoile-search">
+  <Searchbar.Trigger>
+    <Searchbar.Icon /> Search
+  </Searchbar.Trigger>
 
-// Or with SearchRoot
-<SearchRoot apiKey="your-api-key" collections={["paintings"]} className="dark">
-  ...
-</SearchRoot>
+  <Searchbar.Portal>
+    <Searchbar.Overlay className="overlay" />
+    <Searchbar.Content aria-label="Search paintings" className="palette">
+      <Searchbar.Input autoFocus placeholder="Search…" />
+      <Searchbar.List>
+        {results.map((r) => (
+          <Searchbar.Item key={r.id} value={r.id}>
+            {r.title}
+          </Searchbar.Item>
+        ))}
+        <Searchbar.Empty>No results.</Searchbar.Empty>
+      </Searchbar.List>
+    </Searchbar.Content>
+  </Searchbar.Portal>
+</Searchbar.Root>
 ```
 
-### CSS Variables
+---
 
-Every value is customizable. Here are the key variables:
+## Styling
+
+### Data attributes
+
+All primitives emit `data-*` attributes — no class coupling required:
+
+```css
+[role="option"][data-selected="true"] {
+  background: #f0f9ff;
+}
+
+[role="option"][data-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+[data-state="open"] {
+  border-color: #3b82f6;
+}
+```
+
+### Dark mode
+
+```tsx
+<Searchbar className="dark" apiKey="your-api-key" collections={["paintings"]} />
+```
+
+Or wrap a parent element:
+
+```tsx
+<div className="dark">
+  <Searchbar apiKey="your-api-key" collections={["paintings"]} />
+</div>
+```
+
+### CSS variables
+
+Every value is customizable:
 
 ```css
 .etoile-search {
-  /* Colors */
   --etoile-bg: #ffffff;
   --etoile-border: #e4e4e7;
   --etoile-text: #09090b;
   --etoile-text-muted: #71717a;
   --etoile-selected: #f4f4f5;
-  --etoile-ring: #18181b;
-
-  /* Sizing */
   --etoile-radius: 12px;
   --etoile-input-height: 44px;
-  --etoile-thumbnail-size: 40px;
-  --etoile-results-max-height: 300px;
-
-  /* Spacing */
-  --etoile-input-padding-x: 16px;
-  --etoile-result-gap: 16px;
-  --etoile-results-offset: 8px;
-
-  /* Typography */
-  --etoile-font-size-input: 15px;
-  --etoile-font-size-title: 14px;
-
-  /* Animation */
-  --etoile-transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 ```
 
-See `styles.css` for the complete list of 40+ variables.
-
----
-
-## Headless hook
-
-For complete control, use the `useSearch` hook:
-
-```tsx
-import { useSearch } from "@etoile-dev/react";
-
-function MyCustomSearch() {
-  const { query, setQuery, results, isLoading } = useSearch({
-    apiKey: "your-api-key",
-    collections: ["paintings"],
-  });
-
-  return (
-    <div>
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search paintings..."
-      />
-      {isLoading && <p>Loading...</p>}
-      <ul>
-        {results.map((result) => (
-          <li key={result.external_id}>{result.title}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-```
+See `styles.css` for all 40+ variables.
 
 ---
 
 ## API
 
-### `<Search>`
+### `<Searchbar />`
 
-Convenience component that composes all primitives.
+Ready-to-use search component powered by Etoile.
 
-| Prop           | Type                                          | Required | Default |
-|----------------|-----------------------------------------------|----------|---------|
-| `apiKey`       | `string`                                      | ✓        |         |
-| `collections`  | `string[]`                                    | ✓        |         |
-| `limit`        | `number`                                      |          | `10`    |
-| `debounceMs`   | `number`                                      |          | `100`   |
-| `renderResult` | `(result: SearchResultData) => React.ReactNode` |          |         |
+| Prop          | Type                                  | Default           |
+| ------------- | ------------------------------------- | ----------------- |
+| `apiKey`      | `string`                              | **required**      |
+| `collections` | `string[]`                            | **required**      |
+| `limit`       | `number`                              | `10`              |
+| `offset`      | `number`                              | `0` (API default) |
+| `debounceMs`  | `number`                              | `100`             |
+| `placeholder` | `string`                              | `"Search…"`       |
+| `filters`     | `SearchFilter[]`                      |                   |
+| `autoFilters` | `boolean`                             |                   |
+| `renderItem`  | `(result: SearchResult) => ReactNode` |                   |
+| `onSelect`    | `(value: string) => void`             |                   |
+| `hotkey`      | `string`                              |                   |
+| `className`   | `string`                              | `"etoile-search"` |
 
----
-
-### `<SearchRoot>`
-
-Context provider that manages search state and keyboard navigation.
-
-| Prop          | Type              | Required | Default |
-|---------------|-------------------|----------|---------|
-| `apiKey`      | `string`          | ✓        |         |
-| `collections` | `string[]`        | ✓        |         |
-| `limit`       | `number`          |          | `10`    |
-| `debounceMs`  | `number`          |          | `100`   |
-| `autoFocus`   | `boolean`         |          | `false` |
-| `children`    | `React.ReactNode` | ✓        |         |
+Also supports non-state DOM/behavior props from `Searchbar.Root`.
 
 ---
 
-### `<SearchInput>`
+### `<SearchModal />`
 
-Controlled input with ARIA combobox role.
+Ready-to-use command palette powered by Etoile.
 
-| Prop          | Type     |
-|---------------|----------|
-| `placeholder` | `string` |
-| `className`   | `string` |
+| Prop          | Type                                  | Default           |
+| ------------- | ------------------------------------- | ----------------- |
+| `apiKey`      | `string`                              | **required**      |
+| `collections` | `string[]`                            | **required**      |
+| `limit`       | `number`                              | `10`              |
+| `offset`      | `number`                              | `0` (API default) |
+| `debounceMs`  | `number`                              | `100`             |
+| `placeholder` | `string`                              | `"Search…"`       |
+| `filters`     | `SearchFilter[]`                      |                   |
+| `autoFilters` | `boolean`                             |                   |
+| `hotkey`      | `string`                              | `"mod+k"`         |
+| `modalLabel`  | `string`                              | `"Search"`        |
+| `renderItem`  | `(result: SearchResult) => ReactNode` |                   |
+| `onSelect`    | `(value: string) => void`             |                   |
+| `className`   | `string`                              | `"etoile-search"` |
+
+---
+
+### `<Searchbar.Root />`
+
+Context provider and state machine for headless usage.
+
+| Prop             | Type                              | Default    |
+| ---------------- | --------------------------------- | ---------- |
+| `open`           | `boolean`                         |            |
+| `defaultOpen`    | `boolean`                         | `false`    |
+| `onOpenChange`   | `(open: boolean) => void`         |            |
+| `search`         | `string`                          |            |
+| `defaultSearch`  | `string`                          | `""`       |
+| `onSearchChange` | `(search: string) => void`        |            |
+| `value`          | `string \| null`                  |            |
+| `defaultValue`   | `string \| null`                  | `null`     |
+| `onValueChange`  | `(value: string \| null) => void` |            |
+| `isLoading`      | `boolean`                         | `false`    |
+| `error`          | `unknown`                         |            |
+| `hotkey`         | `string`                          |            |
+| `hotkeyBehavior` | `"focus" \| "toggle"`             | `"toggle"` |
+| `onSelect`       | `(value: string) => void`         |            |
+| `className`      | `string`                          |            |
+| `asChild`        | `boolean`                         | `false`    |
 
 **Keyboard shortcuts:**
-- `ArrowUp` / `ArrowDown` — Navigate results
-- `Enter` — Select active result
-- `Escape` — Close results (press again to clear)
+
+- `↑` / `↓` — Navigate items
+- `Enter` — Select active item
+- `Escape` — Close list
 
 ---
 
-### `<SearchResults>`
+### `<Searchbar.Modal />`
 
-Results container with ARIA listbox role.
+Headless modal primitive (`Root + Portal + Overlay + Content`).
 
-| Prop        | Type                                          | Required |
-|-------------|-----------------------------------------------|----------|
-| `className` | `string`                                      |          |
-| `children`  | `(result: SearchResultData) => React.ReactNode` | ✓        |
+| Prop         | Type     | Default    |
+| ------------ | -------- | ---------- |
+| `aria-label` | `string` | `"Search"` |
 
----
-
-### `<SearchResult>`
-
-Individual result with ARIA option role.
-
-| Prop        | Type              | Required |
-|-------------|-------------------|----------|
-| `className` | `string`          |          |
-| `children`  | `React.ReactNode` | ✓        |
-
-**Data attributes:**
-- `data-selected="true" | "false"` — Active state
-- `data-index="number"` — Result position
+Also accepts `Searchbar.Root` props.
 
 ---
 
-### `<SearchResultThumbnail>`
+### `<Searchbar.Input />`
 
-Thumbnail image that auto-detects from `metadata.thumbnailUrl`.
-
-| Prop        | Type     | Required | Default                       |
-|-------------|----------|----------|-------------------------------|
-| `src`       | `string` |          | `metadata.thumbnailUrl`       |
-| `alt`       | `string` |          | `result.title`                |
-| `size`      | `number` |          | `40`                          |
-| `className` | `string` |          |                               |
+| Prop          | Type      | Default |
+| ------------- | --------- | ------- |
+| `placeholder` | `string`  |         |
+| `asChild`     | `boolean` | `false` |
 
 ---
 
-### `<SearchIcon>`
+### `<Searchbar.ModalInput />`
 
-Built-in search magnifying glass SVG icon.
+Pre-composed modal input row.
 
-| Prop        | Type     | Required | Default |
-|-------------|----------|----------|---------|
-| `size`      | `number` |          | `18`    |
-| `className` | `string` |          |         |
+| Prop          | Type                | Default     |
+| ------------- | ------------------- | ----------- |
+| `placeholder` | `string`            | `"Search…"` |
+| `icon`        | `ReactNode \| null` | `<Icon />`  |
+| `kbd`         | `ReactNode \| null` | `"Esc"`     |
 
 ---
 
-### `<SearchKbd>`
+### `<Searchbar.List />`
 
-Keyboard shortcut badge.
+Container with `role="listbox"`. Renders when open. In modal mode, it hides when
+query is empty.
 
-| Prop        | Type              | Required | Default |
-|-------------|-------------------|----------|---------|
-| `children`  | `React.ReactNode` |          | `⌘K`    |
-| `className` | `string` |          | `etoile-kbd` |
+| Prop      | Type      | Default |
+| --------- | --------- | ------- |
+| `asChild` | `boolean` | `false` |
+
+---
+
+### `<Searchbar.Item />`
+
+| Prop       | Type                      | Default  |
+| ---------- | ------------------------- | -------- |
+| `value`    | `string`                  | required |
+| `label`    | `string`                  | `value`  |
+| `disabled` | `boolean`                 | `false`  |
+| `onSelect` | `(value: string) => void` |          |
+| `asChild`  | `boolean`                 | `false`  |
+
+**Data attributes:** `data-selected`, `data-disabled`, `data-value`
+
+---
+
+### `<Searchbar.Group />`
+
+| Prop    | Type     |
+| ------- | -------- |
+| `label` | `string` |
+
+---
+
+### `<Searchbar.Separator />`
+
+Visual separator (`role="separator"`).
+
+---
+
+### `<Searchbar.Empty />`
+
+Renders when: list is open, query is non-empty, no items match, and not loading.
+
+---
+
+### `<Searchbar.Loading />`
+
+Renders when `isLoading={true}` is passed to `Searchbar.Root`.
+
+---
+
+### `<Searchbar.Error />`
+
+Renders when `error` is set on `Searchbar.Root`. Accepts a render function:
 
 ```tsx
-<SearchKbd />           // Shows "⌘K"
-<SearchKbd>/</SearchKbd> // Shows "/"
+<Searchbar.Error>{(err) => `Search failed: ${String(err)}`}</Searchbar.Error>
 ```
 
 ---
 
-### `useSearch(options)`
+### `<Searchbar.Portal />`
 
-Headless hook for complete control.
+Portals children to `document.body` (or a custom `container`).
 
-**Options:**
+---
 
-| Field         | Type       | Required | Default |
-|---------------|------------|----------|---------|
-| `apiKey`      | `string`   | ✓        |         |
-| `collections` | `string[]` | ✓        |         |
-| `limit`       | `number`   |          | `10`    |
-| `debounceMs`  | `number`   |          | `100`   |
+### `<Searchbar.Overlay />`
 
-**Returns:**
+Backdrop for modal/palette mode. Renders when open.
 
-| Field              | Type                       |
-|--------------------|----------------------------|
-| `query`            | `string`                   |
-| `setQuery`         | `(q: string) => void`      |
-| `results`          | `SearchResultData[]`       |
-| `isLoading`        | `boolean`                  |
-| `selectedIndex`    | `number`                   |
-| `setSelectedIndex` | `(i: number) => void`      |
-| `clear`            | `() => void`               |
+---
+
+### `<Searchbar.Content />`
+
+Dialog panel for modal/palette mode. Focuses first focusable child on open.
+
+---
+
+### `<Searchbar.Trigger />`
+
+Button that toggles open state.
+
+---
+
+### `<Searchbar.Icon />`
+
+Search magnifying glass SVG icon.
+
+| Prop   | Type     | Default |
+| ------ | -------- | ------- |
+| `size` | `number` | `18`    |
+
+---
+
+### `<Searchbar.Kbd />`
+
+Keyboard shortcut badge.
+
+```tsx
+<Searchbar.Kbd />          // "⌘K"
+<Searchbar.Kbd>/</Searchbar.Kbd>
+```
+
+---
+
+### `<Searchbar.Thumbnail />`
+
+Thumbnail image. Auto-reads `metadata.thumbnailUrl` from item context when
+used inside the Etoile `<Searchbar />` wrapper.
+
+| Prop   | Type     | Default      |
+| ------ | -------- | ------------ |
+| `src`  | `string` | from context |
+| `alt`  | `string` | item title   |
+| `size` | `number` | `40`         |
+
+---
+
+### `useSearchbarContext()`
+
+Access store helpers from any component inside `Searchbar.Root`.
+
+```tsx
+import { useSearchbarContext, useSearchbarStore } from "@etoile-dev/react";
+
+function QueryDisplay() {
+  const { store } = useSearchbarContext();
+  const query = useSearchbarStore(store, (s) => s.query);
+  return <span>{query}</span>;
+}
+```
+
+---
+
+### `useEtoileSearch(options)`
+
+Headless data hook for live Etoile search.
+
+```tsx
+import { useEtoileSearch } from "@etoile-dev/react";
+
+const [query, setQuery] = useState("");
+const { results, isLoading } = useEtoileSearch({
+  apiKey: process.env.ETOILE_API_KEY!,
+  collections: ["paintings"],
+  query,
+});
+```
+
+Returns `results`, `isLoading`, `error`, `appliedFilters`, and `refinedQuery`.
 
 ---
 
 ## Types
 
 ```ts
-type SearchResultData = {
-  external_id: string;
-  title: string;
-  collection: string;
-  score: number;
-  content?: string;
-  metadata: Record<string, unknown>;
-};
+import type {
+  SearchResult,
+  SearchFilter,
+  FilterOperator,
+} from "@etoile-dev/react";
 ```
+
+`SearchResultData` remains exported as a deprecated alias.
 
 ---
 
 ## Why @etoile-dev/react?
 
-- **Radix / shadcn-style primitives** — Composable and unstyled
-- **Accessibility built-in** — ARIA combobox, keyboard navigation, focus management, click-outside dismiss
-- **Behavior, not appearance** — You own the design
-- **TypeScript-first** — Full type safety
-- **Zero dependencies** — Only React and @etoile-dev/client
+- **Fast by default** — only the components that depend on the query re-render, not the whole tree
+- **Stable selection** — items are identified by value, not by index
+- **Controlled or uncontrolled** — every stateful prop supports both patterns
+- **Composable** — render any element as any primitive with `asChild`
+- **No opinions** — primitives emit `data-*` attributes and inject no theme classes
 
 ---
 

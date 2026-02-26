@@ -5,3 +5,4 @@ dist/
 .env
 *.tgz
 AGENTS.md
+playground/.env.local
