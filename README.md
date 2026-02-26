@@ -481,10 +481,13 @@ const { results, isLoading } = useEtoileSearch({
   apiKey: process.env.ETOILE_API_KEY!,
   collections: ["paintings"],
   query,
+  shouldRetryOnError: true,
+  errorRetryCount: 2,
+  errorRetryInterval: 1000,
 });
 ```
 
-Returns `results`, `isLoading`, `error`, `appliedFilters`, and `refinedQuery`.
+Returns `results`, `isLoading`, `error`, `isError`, `appliedFilters`, and `refinedQuery`.
 
 ---
 

@@ -16,6 +16,15 @@ export type UseEtoileSearchOptions = {
   /** Debounce delay in ms before firing the request (default: 100) */
   debounceMs?: number;
   /**
+   * Whether failed requests should retry automatically (default: true).
+   * Uses `errorRetryCount` and `errorRetryInterval`.
+   */
+  shouldRetryOnError?: boolean;
+  /** Maximum number of retries after a failed request (default: 2). */
+  errorRetryCount?: number;
+  /** Delay between retries in ms (default: 1000). */
+  errorRetryInterval?: number;
+  /**
    * Explicit metadata filters applied to results.
    * Mutually exclusive with `autoFilters`.
    *
@@ -53,6 +62,8 @@ export type UseEtoileSearchReturn = {
   isLoading: boolean;
   /** Set when the last request failed; null otherwise. */
   error: unknown;
+  /** True when `error` is set. */
+  isError: boolean;
   /** Filters that were applied. Populated when `filters` or `autoFilters` is used. */
   appliedFilters?: SearchFilter[];
   /**
@@ -75,9 +86,12 @@ export type UseEtoileSearchReturn = {
  * @param options.limit - Maximum results to return (default: `10`).
  * @param options.offset - Number of results to skip for pagination (default: `0`).
  * @param options.debounceMs - Debounce delay in ms before firing the request (default: `100`).
+ * @param options.shouldRetryOnError - Retry failed requests automatically (default: `true`).
+ * @param options.errorRetryCount - Maximum retries after a failed request (default: `2`).
+ * @param options.errorRetryInterval - Delay between retries in ms (default: `1000`).
  * @param options.filters - Explicit metadata filters. Mutually exclusive with `autoFilters`.
  * @param options.autoFilters - When `true`, the AI extracts filters from the query automatically.
- * @returns Current search state: `results`, `isLoading`, `error`, `appliedFilters`, `refinedQuery`.
+ * @returns Current search state: `results`, `isLoading`, `error`, `isError`, `appliedFilters`, `refinedQuery`.
  *
  * @example Basic usage
  * ```tsx
@@ -119,6 +133,9 @@ export function useEtoileSearch({
   limit = 10,
   offset,
   debounceMs = 100,
+  shouldRetryOnError = true,
+  errorRetryCount = 2,
+  errorRetryInterval = 1000,
   filters,
   autoFilters,
   baseUrl,
@@ -139,6 +156,23 @@ export function useEtoileSearch({
   filtersRef.current = filters;
   const autoFiltersRef = React.useRef(autoFilters);
   autoFiltersRef.current = autoFilters;
+  const collectionsRef = React.useRef(collections);
+  collectionsRef.current = collections;
+
+  // Compare value-based inputs by value so inline objects/arrays don't retrigger endlessly.
+  const collectionsKey = React.useMemo(() => collections.join("\u001f"), [collections]);
+  const filtersKey = React.useMemo(
+    () => JSON.stringify(filters ?? null),
+    [filters]
+  );
+  const autoFiltersKey =
+    autoFilters === undefined ? "unset" : autoFilters ? "true" : "false";
+  const retryCount = Number.isFinite(errorRetryCount)
+    ? Math.max(0, Math.floor(errorRetryCount))
+    : 0;
+  const retryInterval = Number.isFinite(errorRetryInterval)
+    ? Math.max(0, errorRetryInterval)
+    : 0;
 
   // Debounce the raw query
   const [debouncedQuery, setDebouncedQuery] = React.useState(query);
@@ -156,10 +190,10 @@ export function useEtoileSearch({
     }
   }, [query]);
 
-  // Fetch on debounced query / filter change
+  // Fetch on debounced query / collection / filter / retry option change
   React.useEffect(() => {
     if (debouncedQuery.trim() === "") {
-      setResults([]);
+      setResults((prev) => (prev.length === 0 ? prev : []));
       setAppliedFilters(undefined);
       setRefinedQuery(undefined);
       setIsLoading(false);
@@ -168,40 +202,80 @@ export function useEtoileSearch({
     }
 
     let active = true;
-    setError(null);
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let retryAttempt = 0;
 
-    client
-      .search({
-        collections,
-        query: debouncedQuery,
-        limit,
-        ...(offset !== undefined && { offset }),
-        ...(filtersRef.current !== undefined && { filters: filtersRef.current }),
-        ...(autoFiltersRef.current !== undefined && { autoFilters: autoFiltersRef.current }),
-      })
-      .then((res) => {
-        if (!active) return;
-        setResults(Array.isArray(res.results) ? res.results : []);
-        setAppliedFilters(res.appliedFilters);
-        setRefinedQuery(res.refinedQuery);
-      })
-      .catch((err) => {
-        if (!active) return;
-        setResults([]);
-        setAppliedFilters(undefined);
-        setRefinedQuery(undefined);
-        setError(err);
-      })
-      .finally(() => {
-        if (active) setIsLoading(false);
-      });
+    const runSearch = () => {
+      if (!active) return;
+      setIsLoading(true);
+
+      client
+        .search({
+          collections: collectionsRef.current,
+          query: debouncedQuery,
+          limit,
+          ...(offset !== undefined && { offset }),
+          ...(filtersRef.current !== undefined && { filters: filtersRef.current }),
+          ...(autoFiltersRef.current !== undefined && { autoFilters: autoFiltersRef.current }),
+        })
+        .then((res) => {
+          if (!active) return;
+          setResults(Array.isArray(res.results) ? res.results : []);
+          setAppliedFilters(res.appliedFilters);
+          setRefinedQuery(res.refinedQuery);
+          setError(null);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          if (!active) return;
+
+          const canRetry =
+            shouldRetryOnError && retryAttempt < retryCount;
+
+          if (canRetry) {
+            retryAttempt += 1;
+            retryTimer = setTimeout(runSearch, retryInterval);
+            return;
+          }
+
+          setResults([]);
+          setAppliedFilters(undefined);
+          setRefinedQuery(undefined);
+          setError(err);
+          setIsLoading(false);
+        });
+    };
+
+    setError(null);
+    runSearch();
 
     return () => {
       active = false;
+      if (retryTimer) {
+        clearTimeout(retryTimer);
+      }
     };
-  }, [client, collections, debouncedQuery, limit, offset]);
+  }, [
+    client,
+    collectionsKey,
+    filtersKey,
+    autoFiltersKey,
+    debouncedQuery,
+    limit,
+    offset,
+    shouldRetryOnError,
+    retryCount,
+    retryInterval,
+  ]);
 
-  return { results, isLoading, error, appliedFilters, refinedQuery };
+  return {
+    results,
+    isLoading,
+    error,
+    isError: error != null,
+    appliedFilters,
+    refinedQuery,
+  };
 }
 
 /**

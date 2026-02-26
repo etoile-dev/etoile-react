@@ -1,6 +1,6 @@
 {
   "name": "@etoile-dev/react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Official React primitives for Etoile - Headless, composable search components",
   "keywords": [
     "etoile",
