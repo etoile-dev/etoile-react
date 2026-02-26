@@ -64,6 +64,12 @@ export type SearchbarRootProps = {
 
   // ── DOM ───────────────────────────────────────────────────────────────────
   children: React.ReactNode;
+  /**
+   * Class names mirrored to portaled primitives (`Overlay` and `Content`).
+   * Useful when your root `className` is layout-only (e.g. `relative`) but
+   * you still want to theme portal surfaces.
+   */
+  themeClassName?: string;
   className?: string;
   asChild?: boolean;
 } & Omit<React.HTMLAttributes<HTMLDivElement>, "onSelect">;
@@ -127,6 +133,7 @@ export const Root = React.forwardRef<HTMLDivElement, SearchbarRootProps>(
       hotkeyBehavior = "toggle",
       onSelect,
       children,
+      themeClassName,
       className,
       asChild = false,
       ...domProps
@@ -335,7 +342,12 @@ export const Root = React.forwardRef<HTMLDivElement, SearchbarRootProps>(
     const handleSelect = React.useCallback(
       (value: string) => {
         const item = store.getState().items.get(value);
-        item?.onSelect?.(value);
+        const itemOnSelect = item?.onSelect;
+        // Guard against accidental double-calls when the same callback
+        // is passed at both Root and Item level.
+        if (itemOnSelect && itemOnSelect !== onSelect) {
+          itemOnSelect(value);
+        }
         onSelect?.(value);
         setSelectedValue(value);
         setOpen(false);
@@ -518,7 +530,7 @@ export const Root = React.forwardRef<HTMLDivElement, SearchbarRootProps>(
         store,
         listId,
         rootId,
-        rootClassName: className,
+        rootClassName: themeClassName ?? className,
         isSearchControlled,
         onSearchChange,
         triggerRef,
@@ -529,7 +541,7 @@ export const Root = React.forwardRef<HTMLDivElement, SearchbarRootProps>(
         registerItem,
         unregisterItem,
       }),
-      [store, listId, rootId, className, isSearchControlled, onSearchChange, triggerRef, getItemId, handleSelect, setOpen, handleKeyDown, registerItem, unregisterItem]
+      [store, listId, rootId, themeClassName, className, isSearchControlled, onSearchChange, triggerRef, getItemId, handleSelect, setOpen, handleKeyDown, registerItem, unregisterItem]
     );
 
     const Comp = asChild ? Slot : "div";

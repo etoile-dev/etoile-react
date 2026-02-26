@@ -11,7 +11,7 @@ export type SearchbarContextValue = {
    * the click-outside handler can correctly ignore clicks inside portals.
    */
   rootId: string;
-  /** Optional Root className forwarded to portaled Content/Overlay. */
+  /** Theme class names forwarded to portaled Content/Overlay. */
   rootClassName?: string;
   /** Whether search is controlled (Input must not mutate store) */
   isSearchControlled?: boolean;

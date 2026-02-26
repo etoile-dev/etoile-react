@@ -107,6 +107,9 @@ Primitives are unstyled by default. To opt into the built-in theme while using
 primitives, add `className="etoile-search"` on `Searchbar.Root` and import
 `@etoile-dev/react/styles.css`.
 
+For modal compositions, apply the theme class once on `Searchbar.Root`.
+`Searchbar.Overlay` and `Searchbar.Content` inherit it automatically.
+
 ---
 
 ## Custom rendering
@@ -115,7 +118,7 @@ primitives, add `className="etoile-search"` on `Searchbar.Root` and import
 <Searchbar
   apiKey={process.env.ETOILE_API_KEY!}
   collections={["paintings", "artists"]}
-  onSelect={(id) => router.push(`/work/${id}`)}
+  onSelectResult={(result) => router.push(`/work/${result.external_id}`)}
   renderItem={(result) => (
     <Searchbar.Item value={result.external_id} label={result.title}>
       <Searchbar.Thumbnail />
@@ -126,6 +129,16 @@ primitives, add `className="etoile-search"` on `Searchbar.Root` and import
     </Searchbar.Item>
   )}
 />
+```
+
+Or use a fully custom link strategy in your item renderer:
+
+```tsx
+<Searchbar.Item value={result.external_id} label={result.title}>
+  <a href={String(result.metadata?.linkUrl ?? `/work/${result.external_id}`)}>
+    {result.title}
+  </a>
+</Searchbar.Item>
 ```
 
 ---
@@ -241,10 +254,12 @@ Ready-to-use search component powered by Etoile.
 | `autoFilters` | `boolean`                             |                   |
 | `renderItem`  | `(result: SearchResult) => ReactNode` |                   |
 | `onSelect`    | `(value: string) => void`             |                   |
+| `onSelectResult` | `(result: SearchResult) => void`  |                   |
 | `hotkey`      | `string`                              |                   |
 | `className`   | `string`                              | `"etoile-search"` |
 
 Also supports non-state DOM/behavior props from `Searchbar.Root`.
+Use `onSelectResult` for simple routing with `external_id`.
 
 ---
 
@@ -266,7 +281,10 @@ Ready-to-use command palette powered by Etoile.
 | `modalLabel`  | `string`                              | `"Search"`        |
 | `renderItem`  | `(result: SearchResult) => ReactNode` |                   |
 | `onSelect`    | `(value: string) => void`             |                   |
+| `onSelectResult` | `(result: SearchResult) => void`  |                   |
 | `className`   | `string`                              | `"etoile-search"` |
+
+Use `onSelectResult` for simple routing with `external_id`.
 
 ---
 
@@ -290,6 +308,7 @@ Context provider and state machine for headless usage.
 | `hotkey`         | `string`                          |            |
 | `hotkeyBehavior` | `"focus" \| "toggle"`             | `"toggle"` |
 | `onSelect`       | `(value: string) => void`         |            |
+| `themeClassName` | `string`                          |            |
 | `className`      | `string`                          |            |
 | `asChild`        | `boolean`                         | `false`    |
 
@@ -342,6 +361,35 @@ query is empty.
 | Prop      | Type      | Default |
 | --------- | --------- | ------- |
 | `asChild` | `boolean` | `false` |
+
+---
+
+### `<Searchbar.Results />`
+
+Helper primitive to render arrays of results with optional built-in states.
+
+```tsx
+<Searchbar.List>
+  <Searchbar.Results
+    results={results}
+    renderItem={(result) => (
+      <Searchbar.Item value={result.external_id} label={result.title}>
+        {result.title}
+      </Searchbar.Item>
+    )}
+  />
+</Searchbar.List>
+```
+
+| Prop         | Type                                          |
+| ------------ | --------------------------------------------- |
+| `results`    | `T[]`                                         |
+| `renderItem` | `(result: T, index: number) => ReactNode`     |
+| `getValue`   | `(result: T, index: number) => string`        |
+| `getLabel`   | `(result: T, index: number) => string`        |
+| `empty`      | `ReactNode \| null`                           |
+| `loading`    | `ReactNode \| null`                           |
+| `error`      | `ReactNode \| ((error: unknown) => ReactNode) \| null` |
 
 ---
 

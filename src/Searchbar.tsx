@@ -21,6 +21,7 @@ import { Root } from "./primitives/Root.js";
 import { Input } from "./primitives/Input.js";
 import { List } from "./primitives/List.js";
 import { Item } from "./primitives/Item.js";
+import { Results as ResultsPrimitive } from "./primitives/Results.js";
 import { Group } from "./primitives/Group.js";
 import { Separator } from "./primitives/Separator.js";
 import { Empty } from "./primitives/Empty.js";
@@ -36,7 +37,6 @@ import { Icon } from "./primitives/Icon.js";
 import { Kbd } from "./primitives/Kbd.js";
 import { Thumbnail } from "./primitives/Thumbnail.js";
 import { useEtoileSearch } from "./hooks/useEtoileSearch.js";
-import { SearchbarItemDataContext } from "./context.js";
 import type { SearchFilter, SearchResult } from "@etoile-dev/client";
 import type { SearchbarRootProps } from "./primitives/Root.js";
 
@@ -94,6 +94,12 @@ export type SearchbarProps = {
   renderItem?: (result: SearchResult) => React.ReactNode;
   /** Called when an item is selected. Receives the result's `external_id`. */
   onSelect?: (value: string) => void;
+  /**
+   * Called when an item is selected. Receives the full selected result.
+   * Ideal for routing, for example:
+   * `onSelectResult={(result) => router.push(\`/work/${result.external_id}\`)}`
+   */
+  onSelectResult?: (result: SearchResult) => void;
   // Internal: override the Etoile API base URL
   baseUrl?: string;
 } & Omit<
@@ -143,6 +149,12 @@ export type SearchModalProps = {
   renderItem?: (result: SearchResult) => React.ReactNode;
   /** Called when an item is selected. Receives the result's `external_id`. */
   onSelect?: (value: string) => void;
+  /**
+   * Called when an item is selected. Receives the full selected result.
+   * Ideal for routing, for example:
+   * `onSelectResult={(result) => router.push(\`/work/${result.external_id}\`)}`
+   */
+  onSelectResult?: (result: SearchResult) => void;
   // Internal: override the Etoile API base URL
   baseUrl?: string;
 } & Omit<
@@ -218,6 +230,7 @@ const SearchbarWrapper = React.forwardRef<HTMLDivElement, SearchbarProps>(
       autoFilters,
       renderItem,
       onSelect,
+      onSelectResult,
       baseUrl,
       hotkey,
       className,
@@ -239,6 +252,22 @@ const SearchbarWrapper = React.forwardRef<HTMLDivElement, SearchbarProps>(
       baseUrl,
     });
 
+    const handleSelect = React.useCallback(
+      (value: string) => {
+        onSelect?.(value);
+        if (!onSelectResult) return;
+        const result = results.find((item) => item.external_id === value);
+        if (result) onSelectResult(result);
+      },
+      [onSelect, onSelectResult, results]
+    );
+
+    const renderSearchItem = React.useCallback(
+      (result: SearchResult) =>
+        renderItem ? renderItem(result) : <DefaultItem result={result} />,
+      [renderItem]
+    );
+
     return (
       <Root
         {...rootProps}
@@ -249,7 +278,7 @@ const SearchbarWrapper = React.forwardRef<HTMLDivElement, SearchbarProps>(
         onSearchChange={setQuery}
         isLoading={isLoading}
         error={error ?? undefined}
-        onSelect={onSelect}
+        onSelect={handleSelect}
         className={
           className
             ? `etoile-search ${className}`
@@ -263,21 +292,16 @@ const SearchbarWrapper = React.forwardRef<HTMLDivElement, SearchbarProps>(
         </div>
 
         <List>
-          {results.map((result) =>
-            renderItem ? (
-              // User's custom renderer — wrap in data context so Thumbnail works
-              <SearchbarItemDataContext.Provider key={result.external_id} value={result}>
-                {renderItem(result)}
-              </SearchbarItemDataContext.Provider>
-            ) : (
-              <DefaultItem key={result.external_id} result={result} />
-            )
-          )}
-          <Empty>
-            No results found for <span data-slot="searchbar-empty-query">"{query}"</span>
-          </Empty>
-          <Loading />
-          <ErrorPrimitive />
+          <ResultsPrimitive
+            results={results}
+            renderItem={renderSearchItem}
+            empty={
+              <>
+                No results found for{" "}
+                <span data-slot="searchbar-empty-query">"{query}"</span>
+              </>
+            }
+          />
         </List>
       </Root>
     );
@@ -340,6 +364,7 @@ export const SearchModal = React.forwardRef<HTMLDivElement, SearchModalProps>(
       modalLabel = "Search",
       renderItem,
       onSelect,
+      onSelectResult,
       baseUrl,
       className,
       ...rootProps
@@ -360,6 +385,22 @@ export const SearchModal = React.forwardRef<HTMLDivElement, SearchModalProps>(
       baseUrl,
     });
 
+    const handleSelect = React.useCallback(
+      (value: string) => {
+        onSelect?.(value);
+        if (!onSelectResult) return;
+        const result = results.find((item) => item.external_id === value);
+        if (result) onSelectResult(result);
+      },
+      [onSelect, onSelectResult, results]
+    );
+
+    const renderSearchItem = React.useCallback(
+      (result: SearchResult) =>
+        renderItem ? renderItem(result) : <DefaultItem result={result} />,
+      [renderItem]
+    );
+
     return (
       <Modal
         {...rootProps}
@@ -369,7 +410,7 @@ export const SearchModal = React.forwardRef<HTMLDivElement, SearchModalProps>(
         onSearchChange={setQuery}
         isLoading={isLoading}
         error={error ?? undefined}
-        onSelect={onSelect}
+        onSelect={handleSelect}
         className={
           className
             ? `etoile-search ${className}`
@@ -380,20 +421,16 @@ export const SearchModal = React.forwardRef<HTMLDivElement, SearchModalProps>(
         <ModalInput placeholder={placeholder} />
 
         <List>
-          {results.map((result) =>
-            renderItem ? (
-              <SearchbarItemDataContext.Provider key={result.external_id} value={result}>
-                {renderItem(result)}
-              </SearchbarItemDataContext.Provider>
-            ) : (
-              <DefaultItem key={result.external_id} result={result} />
-            )
-          )}
-          <Empty>
-            No results found for <span data-slot="searchbar-empty-query">"{query}"</span>
-          </Empty>
-          <Loading />
-          <ErrorPrimitive />
+          <ResultsPrimitive
+            results={results}
+            renderItem={renderSearchItem}
+            empty={
+              <>
+                No results found for{" "}
+                <span data-slot="searchbar-empty-query">"{query}"</span>
+              </>
+            }
+          />
         </List>
       </Modal>
     );
@@ -405,15 +442,13 @@ SearchModal.displayName = "SearchModal";
 // ─── Default item renderer ────────────────────────────────────────────────────
 
 const DefaultItem = ({ result }: { result: SearchResult }) => (
-  <SearchbarItemDataContext.Provider value={result}>
-    <Item value={result.external_id} label={result.title}>
-      <Thumbnail />
-      <div data-slot="searchbar-result-content">
-        <span data-slot="searchbar-result-title">{result.title}</span>
-        <span data-slot="searchbar-result-subtitle">{result.collection}</span>
-      </div>
-    </Item>
-  </SearchbarItemDataContext.Provider>
+  <Item value={result.external_id} label={result.title}>
+    <Thumbnail />
+    <div data-slot="searchbar-result-content">
+      <span data-slot="searchbar-result-title">{result.title}</span>
+      <span data-slot="searchbar-result-subtitle">{result.collection}</span>
+    </div>
+  </Item>
 );
 
 // ─── Namespace assembly ───────────────────────────────────────────────────────
@@ -423,6 +458,7 @@ export const Searchbar = Object.assign(SearchbarWrapper, {
   Input,
   List,
   Item,
+  Results: ResultsPrimitive,
   Group,
   Separator,
   Empty,
